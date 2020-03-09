@@ -2,6 +2,13 @@
 
 Integrates Blockchain Technology with Supply-Chain
 
+<img src="images/react.png" width="200" >
+<img src="images/redux.png" width="200" >
+<img src="images/js.png" width="200" >
+<img src="images/solidity.png" width="200" >
+<img src="images/ipfs.png" width="200" >
+
+
 ---
 
 ## Introduction 
@@ -19,6 +26,8 @@ To ameliorate the standard of security and authentication we present the combina
 ## Why Blockchain?
 
 Many people would debate if blockchain is the right technology to combine with the supply-chain due to its association with Bitcoin which doesn't have the best reputation when it comes to speed, efficiency and general robustness.
+
+<img src="images/blockchain.jpg" width="650" position="centre">
 
 By far, it is clear to everyone that has followed Blockchain that it 5 main advantages when compared to traditional databases:
 
