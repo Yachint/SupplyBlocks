@@ -1,0 +1,19 @@
+{
+  "name": "supplyblocks",
+  "version": "1.0.0",
+  "description": "Integrates Blockchain Technology with Supply-Chain",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Yachint/SupplyBlocks.git"
+  },
+  "author": "Yachint",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Yachint/SupplyBlocks/issues"
+  },
+  "homepage": "https://github.com/Yachint/SupplyBlocks#readme"
+}
