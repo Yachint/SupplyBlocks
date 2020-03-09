@@ -2,12 +2,13 @@
 
 Integrates Blockchain Technology with Supply-Chain
 
-<img src="images/react.png" width="200" >
-<img src="images/redux.png" width="200" >
-<img src="images/js.png" width="200" >
-<img src="images/solidity.png" width="200" >
-<img src="images/ipfs.png" width="200" >
-
+<p float="left">
+<img src="images/react.png" width="170" class="align-center" >
+<img src="images/redux.png" width="170" class="align-center">
+<img src="images/js.png" width="170" class="align-right" >
+<img src="images/solidity.png" width="170" class="align-left">
+<img src="images/ipfs.png" width="170" class="align-left">
+</p>
 
 ---
 
