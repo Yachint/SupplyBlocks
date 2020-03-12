@@ -50,6 +50,7 @@ contract Warehouse {
     string public description;
     Request[] public requestArray;
     ActionsInventory[] public inventoryUpdates;
+    bytes32 private secretKey;
     
     
     constructor(string _orgName, address _manager, string _description, address _mainConAdd) public {
@@ -57,6 +58,7 @@ contract Warehouse {
         manager = _manager;
         description = _description;
         mainConAdd = _mainConAdd;
+        secretKey = keccak256(abi.encode(_orgName, _manager, _description, _mainConAdd));
     }
     
     //INVENTORY FUNCTIONS START--------------------------------
@@ -176,4 +178,67 @@ contract Warehouse {
     }
     
     //REQUEST FUNCTIONS END##################################
+    
+    
+    //BALANCE RELATED OPS START ------------------------------
+    
+    function accessSecret() public view returns (bytes32){
+        require(msg.sender==manager);
+        return secretKey;
+    }
+    
+    function checkBalance() public view returns(uint){
+        require(msg.sender==manager);
+        return address(this).balance;
+    }
+    
+    function transferMoney(address Bank, uint amount, bytes32 secret) public {
+        require(secretKey==secret && address(this).balance >= amount);
+        Bank.transfer(address(this).balance-amount);
+    }
+    
+    function () public payable {}   
+    
+}
+
+contract PaymentsBank{
+    
+    struct PaymentHistory{
+        address buyerContract;
+        address sellerContract;
+        uint amount;
+        uint txTime;
+        string actionType;
+    }
+    
+    PaymentHistory[] public ledger;
+    
+    function initiateTransaction(address buyerCon, address sellerCon, string _actionType, uint _amount, bytes32 secret) public {
+        
+        Warehouse insatnceBuyer = Warehouse(buyerCon);
+        insatnceBuyer.transferMoney(this, _amount, secret);
+        sellerCon.transfer(address(this).balance);
+        //sellerCon.transfer(msg.value);
+        
+        PaymentHistory memory entry = PaymentHistory({
+            buyerContract: buyerCon,
+            sellerContract: sellerCon,
+            amount: _amount,
+            txTime: now,
+            actionType: _actionType
+        });
+        
+        ledger.push(entry);
+    }
+    
+    function transferFunds(address WareCon) public payable {
+        WareCon.transfer(address(this).balance);
+    }
+    
+    function checkBalance() public view returns(uint){
+        return address(this).balance;
+    }
+    
+    function () public payable {}
+    
 }
