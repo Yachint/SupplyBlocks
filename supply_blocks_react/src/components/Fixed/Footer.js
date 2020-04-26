@@ -5,7 +5,7 @@ const { Footer } = Layout;
 
 const FooterComp = () => {
     return(
-        <Footer style={{ textAlign: 'center' }}>Supply Blocks ©2018 Created by a bunch of JIIT students</Footer>
+        <Footer style={{ textAlign: 'center' }}>Supply Blocks ©2020 Created by a bunch of JIIT students</Footer>
     );
 }
 
