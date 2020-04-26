@@ -1,0 +1,34 @@
+
+
+.site-layout-content {
+  background: #fff;
+  padding: 24px;
+  min-height: 280px;
+}
+.logo {
+  width: 120px;
+  height: 31px;
+
+  margin: 16px 24px 16px 0;
+  float: left;
+}
+  [data-theme="dark"] .site-layout-content {
+    background: #141414;
+  }
+  [data-theme="dark"] .logo {
+    background: rgba(255,255,255,0.3);
+  }
+
+.logo p {
+  color: #fff;
+  font-size: 20px;
+  
+}
+
+.MenuPos {
+  float: right;
+}
+
+.ItemPos {
+  font-weight: bold;
+}
