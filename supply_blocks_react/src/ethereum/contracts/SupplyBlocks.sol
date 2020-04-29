@@ -3,12 +3,10 @@ pragma solidity ^0.4.17;
 contract SupplyBlocks {
     
     address[] public deployedAccounts;
-    mapping(uint => address) googleLogIn;
     mapping(address => address) contractDetails;
     
-    function createAccount(string _orgName, string _description, uint GAPI_ID) public {
+    function createAccount(string _orgName, string _description) public {
         address newAccount = new Warehouse(_orgName,msg.sender,_description, this);
-        googleLogIn[GAPI_ID] = msg.sender;
         contractDetails[msg.sender] = newAccount;
         deployedAccounts.push(newAccount);
     }
@@ -17,12 +15,9 @@ contract SupplyBlocks {
         return contractDetails[warehouseAdd];
     }
     
-    function getAccountAddressGAPI(uint GAPI_ID) public view returns (address){
-        return googleLogIn[GAPI_ID];
-    }
     
-    function deactivateAccount(uint GAPI_ID) public {
-        googleLogIn[GAPI_ID] = 0x0000000000000000000000000000000000000000;
+    function deactivateAccount(address myAdd) public {
+        contractDetails[myAdd] = 0x0000000000000000000000000000000000000000;
     }
 }
 

@@ -2,6 +2,7 @@ import React from 'react';
 import { Layout, Menu } from 'antd';
 import { withRouter } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import LogInMetamask from './LogInMetamask';
 
 const { Header } = Layout;
 
@@ -41,6 +42,7 @@ const HeaderComp = (props) => {
         <Menu.Item className = "ItemPos" key="4">
             <Link to="/User">User</Link>
         </Menu.Item>
+        <LogInMetamask />
       </Menu>
     </Header>
     );
