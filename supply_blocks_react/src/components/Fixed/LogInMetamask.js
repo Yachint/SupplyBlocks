@@ -1,64 +1,27 @@
-import React, { useState } from 'react';
-import { connect } from 'react-redux';
-import { signIn, signOut } from '../../actions';
-import { message, Button } from 'antd';
-import web3 from '../../ethereum/web3';
+import React from 'react';
+import { Button } from 'antd';
 
 const LogInMetamask = (props) => {
 
-    const [isLoading, setLoading] = useState(false);
-
-    const initiateLogin = async () =>{
-        setLoading(true);
-        const accounts = await web3.eth.getAccounts();
-        if(accounts.length === 0){
-            console.log("Accounts length is Empty, Maybe Login to Metamask First?");
-            setLoading(false);
-            error();
-        }else{
-            props.signIn(accounts[0]);
-            messageOnLogin();
-            setLoading(false);
-        }
+    const initiateLogin = () =>{
+        props.initiateLogin()
     }
 
-    const messageOnLogin = () => {
-        message.success('You have successfully Logged in!');
-    };
-
-    const messageOnLogOut = () => {
-        message.success('You have successfully Logged out!');
-    };
-
-    const error = () => {
-        message.error('Failed to login!, Maybe Login to Metamask First?');
-    };
-
     const initiateLogout = () => {
-        props.signOut();
-        messageOnLogOut();
+        props.initiateLogout();
     }   
 
     const renderButton = () => {
         if(props.isSignedIn === null || props.isSignedIn === false){
-            return <Button type="primary" loading={isLoading} onClick={initiateLogin}>Sign in with Metamask</Button>
+            return <Button style={{marginLeft: '30px', marginRight: '-20px'}} type="primary" loading={props.isLoading} onClick={initiateLogin}>Sign in with Metamask</Button>
         }else{
-            return <Button type="primary" loading={isLoading} onClick={initiateLogout}>Welcome User</Button>
+            return <Button type="primary" loading={props.isLoading} onClick={initiateLogout}>Welcome User</Button>
         }
     }
 
     return(
         renderButton()
     );
-
-
 }
 
-const mapStateToProps = (state) => {
-    return { isSignedIn: state.auth.isSignedIn };
-}
-
-export default connect(mapStateToProps, {
-    signIn: signIn,
-    signOut: signOut
-})(LogInMetamask);
+export default LogInMetamask;

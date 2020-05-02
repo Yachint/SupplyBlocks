@@ -4,11 +4,18 @@ contract SupplyBlocks {
     
     address[] public deployedAccounts;
     mapping(address => address) contractDetails;
+    address PaymentsBankAddress;
     
-    function createAccount(string _orgName, string _description) public {
-        address newAccount = new Warehouse(_orgName,msg.sender,_description, this);
+    constructor() public{
+        PaymentsBankAddress = new PaymentsBank();
+    }
+    
+    function createAccount(string _orgName, string _description, string addinfohash) public returns (address) {
+        address newAccount = new Warehouse(_orgName,msg.sender,_description, this, addinfohash);
         contractDetails[msg.sender] = newAccount;
         deployedAccounts.push(newAccount);
+        return newAccount;
+        
     }
     
     function getContractAddress(address warehouseAdd) public view returns (address){
@@ -39,7 +46,9 @@ contract Warehouse {
     }
     
     string public inventoryHash;
-    address mainConAdd;
+    string public ordersHash;
+    string public AddInfoHash;
+    address public mainConAdd;
     string public orgName;
     address public manager;
     string public description;
@@ -48,11 +57,12 @@ contract Warehouse {
     bytes32 private secretKey;
     
     
-    constructor(string _orgName, address _manager, string _description, address _mainConAdd) public {
+    constructor(string _orgName, address _manager, string _description, address _mainConAdd, string addinfohash) public {
         orgName = _orgName;
         manager = _manager;
         description = _description;
         mainConAdd = _mainConAdd;
+        AddInfoHash = addinfohash;
         secretKey = keccak256(abi.encode(_orgName, _manager, _description, _mainConAdd));
     }
     
@@ -67,6 +77,11 @@ contract Warehouse {
         inventoryHash = newHash;
     }
     
+    function setOrderHash(string newHash) public {
+        require(msg.sender==manager);
+        ordersHash = newHash;
+    }
+    
     function addInventoryUpdates(uint givenProdId, string JSON) public{
         ActionsInventory memory action = ActionsInventory({
             prodId: givenProdId,
@@ -76,25 +91,29 @@ contract Warehouse {
         inventoryUpdates.push(action);
     }
     
-    function removeInventoryUpdates(uint index) public{
-        delete inventoryUpdates[index];
+    function emptyInventoryUpdates() public{
+        delete inventoryUpdates;
     }
     
     function getInventoryUpdatesLength() public view returns (uint){
         return inventoryUpdates.length;
     }
     
-    function getSpecificInventoryUpdate(uint index) public view returns (uint, string){
-        ActionsInventory storage action = inventoryUpdates[index];
-        return(action.prodId, action.change);
-    }
+    // function getSpecificInventoryUpdate(uint index) public view returns (uint, string){
+    //     ActionsInventory storage action = inventoryUpdates[index];
+    //     return(action.prodId, action.change);
+    // }
     
     //INVENTORY FUNCTIONS END###################################
     
     
     
     
-    //REQUEST FUNCTIONS START--------------------------------
+    //REQUEST FUNCTIONS START-----------------------------------
+    
+    function emptyRequests() public {
+        delete requestArray;
+    }
     
     function fireRequest(uint GivenProdId, string currentDate) public {
         SupplyBlocks sup = SupplyBlocks(mainConAdd);
@@ -192,7 +211,10 @@ contract Warehouse {
         Bank.transfer(address(this).balance-amount);
     }
     
+    //BALANCE RELATED OPS START#################################
+    
     function () public payable {}   
+    
     
 }
 
