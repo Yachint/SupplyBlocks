@@ -27,7 +27,8 @@ export const loadContract = (conAddress) => {
             description: await userWarehouse.methods.description().call(),
             AdditionalInfoHash: await userWarehouse.methods.AddInfoHash().call(),
             managerAddress: await userWarehouse.methods.manager().call(),
-            mainContractAddress: await userWarehouse.methods.mainConAdd().call()
+            mainContractAddress: await userWarehouse.methods.mainConAdd().call(),
+            publicKey: await userWarehouse.methods.publicKey().call()
         }
 
         const AdditionalObj = await IPFS_Download(contractDetails.AdditionalInfoHash);
@@ -52,7 +53,7 @@ export const unloadContract = () => {
     }
 }
 
-export const initializeContract = (formValues) => {
+export const initializeContract = (formValues, pubKey, privKey) => {
     return async (dispatch, getState) => {
         const { userAddress } = getState().auth;
 
@@ -70,7 +71,9 @@ export const initializeContract = (formValues) => {
         await SupplyBlocks.methods.createAccount(
             formValues.orgName,
             formValues.description,
-            hash
+            hash,
+            pubKey,
+            privKey
         ).send({ from: userAddress });
         
         const address = await SupplyBlocks.methods.getContractAddress(userAddress).call();
@@ -81,10 +84,11 @@ export const initializeContract = (formValues) => {
 
         const contractDetails = {
             orgName: formValues.orgName,
-            description: formValues.desciption,
+            description: formValues.description,
             AdditionalInfoHash: hash,
             managerAddress: userAddress,
-            mainContractAddress: await userWarehouse.methods.mainConAdd().call()
+            mainContractAddress: await userWarehouse.methods.mainConAdd().call(),
+            publicKey: pubKey
         }
 
         dispatch({

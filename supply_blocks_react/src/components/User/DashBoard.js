@@ -25,6 +25,14 @@ const DashBoard = (props) =>{
         }
     },[address, loadContract]);
 
+    const renderCategories = () => {
+        return props.AdditionalInfo.productCategories.map(item => {
+            return <React.Fragment key={item}>
+                {item} <br />
+            </React.Fragment>
+        })
+    }
+
     const renderContent = () => {
 
         if(props.contractAddress === null && 
@@ -63,7 +71,7 @@ const DashBoard = (props) =>{
         else{
             const { contractAddress, contractDetails, AdditionalInfo } = props;
             return (
-                <Descriptions title="User Info" bordered>
+                <Descriptions title="Contract Details" bordered>
                     <Descriptions.Item label="Organization Name">{contractDetails.orgName}</Descriptions.Item>
                     <Descriptions.Item label="Organization Address" span={2} >{contractAddress}</Descriptions.Item>
                     <Descriptions.Item label="Manager Address">{contractDetails.managerAddress}</Descriptions.Item>
@@ -74,8 +82,8 @@ const DashBoard = (props) =>{
                     <Badge status="processing" text="Online" />
                     </Descriptions.Item>
                     <Descriptions.Item label="Organization Description" span={2}>{contractDetails.description}</Descriptions.Item>
-                    <Descriptions.Item label="Product Categories">Coming Soon</Descriptions.Item>
-                    <Descriptions.Item label="Config Info">
+                    <Descriptions.Item label="Product Categories">{renderCategories()}</Descriptions.Item>
+                    <Descriptions.Item label="Config Info" span={2}>
                     Name: {AdditionalInfo.name}
                     <br />
                     Designation: {AdditionalInfo.designation}
@@ -85,6 +93,7 @@ const DashBoard = (props) =>{
                     Warehouse Address: {AdditionalInfo.warehouseAddress}
                     <br />
                     </Descriptions.Item>
+                    <Descriptions.Item label="Organization Public Key" span={3}>{contractDetails.publicKey}</Descriptions.Item>
                 </Descriptions>
             );
         }

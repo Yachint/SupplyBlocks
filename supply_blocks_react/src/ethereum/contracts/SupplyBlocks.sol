@@ -4,14 +4,14 @@ contract SupplyBlocks {
     
     address[] public deployedAccounts;
     mapping(address => address) contractDetails;
-    address PaymentsBankAddress;
+    address public PaymentsBankAddress;
     
     constructor() public{
         PaymentsBankAddress = new PaymentsBank();
     }
     
-    function createAccount(string _orgName, string _description, string addinfohash) public returns (address) {
-        address newAccount = new Warehouse(_orgName,msg.sender,_description, this, addinfohash);
+    function createAccount(string _orgName, string _description, string addinfohash, string pub, string priv) public returns (address) {
+        address newAccount = new Warehouse(_orgName,msg.sender,_description, this, addinfohash, pub, priv);
         contractDetails[msg.sender] = newAccount;
         deployedAccounts.push(newAccount);
         return newAccount;
@@ -55,22 +55,31 @@ contract Warehouse {
     Request[] public requestArray;
     ActionsInventory[] public inventoryUpdates;
     bytes32 private secretKey;
+    string private privateKey;
+    string public publicKey;
+    uint private toPay;
     
-    
-    constructor(string _orgName, address _manager, string _description, address _mainConAdd, string addinfohash) public {
+    constructor(string _orgName, address _manager, string _description, address _mainConAdd, string addinfohash, string pub, string priv) public {
         orgName = _orgName;
         manager = _manager;
         description = _description;
         mainConAdd = _mainConAdd;
         AddInfoHash = addinfohash;
+        publicKey = pub;
+        privateKey = priv;
         secretKey = keccak256(abi.encode(_orgName, _manager, _description, _mainConAdd));
     }
     
+    //GETTERS AND SETTERS FUNCTIONS START--------------------------------
+    
+    function getPrivateKey() public view returns (string){
+        require(msg.sender==manager);
+        return privateKey;
+    }
+    
+    
     //INVENTORY FUNCTIONS START--------------------------------
     
-    function getInventoryHash() public view returns (string) {
-        return inventoryHash;
-    }
     
     function setInventoryHash(string newHash) public {
         require(msg.sender==manager);
@@ -208,7 +217,7 @@ contract Warehouse {
     
     function transferMoney(address Bank, uint amount, bytes32 secret) public {
         require(secretKey==secret && address(this).balance >= amount);
-        Bank.transfer(address(this).balance-amount);
+        Bank.transfer(amount);
     }
     
     //BALANCE RELATED OPS START#################################

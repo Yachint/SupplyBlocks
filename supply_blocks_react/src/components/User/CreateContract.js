@@ -5,15 +5,17 @@ import { connect } from 'react-redux';
 import { initializeContract } from '../../actions';
 import ContractForm from '../Reusable/Form';
 import { Spin, notification } from 'antd';
+import KeyGenerator from '../../apis/KeyGenerator';
 
 class CreateContract extends React.Component {
 
     state = { isLoading: false };
 
     onSubmit = (formValues) => {
-        console.log(formValues);
+        //console.log(formValues);
         this.setState({ isLoading: true });
-        this.props.initializeContract(formValues);
+        const keys = KeyGenerator();
+        this.props.initializeContract(formValues,keys.pubKey,keys.privKey);
     }
 
     componentDidUpdate(prevProps){
