@@ -10,7 +10,7 @@ import Content from './Fixed/Content';
 import Footer from './Fixed/Footer';
 import history from '../history';
 import User from './User/User';
-import Inventory from './Inventory/Inventory';
+import InventoryPage from './Inventory/InventoryPage';
 import Orders from './Orders/Orders';
 import DashBoard from './User/DashBoard';
 import CreateContract from './User/CreateContract';
@@ -24,7 +24,7 @@ class App extends React.Component {
                     <Route path="/" exact component={DashBoard} />
                     <Route path="/User" exact component = {User} />
                     <Route path="/Orders" exact component = {Orders} />
-                    <Route path="/Inventory" exact component = {Inventory} />
+                    <Route path="/Inventory" exact component = {InventoryPage} />
                     <Route path="/User/NewContract" exact component = {CreateContract} />
                     <Redirect to="/" />
                 </Switch>
