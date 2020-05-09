@@ -5,6 +5,7 @@ import SupplyBlocks from '../../ethereum/SupplyBlocks';
 import { Empty, Button, Descriptions, Badge } from 'antd';
 import { Link } from 'react-router-dom';
 import { Spin } from 'antd';
+import HomePageNonLogin from './HomepageNonLogin';
 
 const DashBoard = (props) =>{
 
@@ -38,9 +39,7 @@ const DashBoard = (props) =>{
         if(props.contractAddress === null && 
             (props.isSignedIn === null || props.isSignedIn === false )){
             return(
-                <div>
-                    <h3>Welcome User to DashBoard!</h3>
-                </div>
+                <HomePageNonLogin />
             );
         }
         else if(props.contractAddress === null &&
