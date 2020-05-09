@@ -31,6 +31,7 @@ const formItemLayout = {
 class ContractForm extends React.Component {
 
     onSubmit = (formValues) => {
+        console.log("Sent!");
         this.props.onSubmit(formValues);
     }
 

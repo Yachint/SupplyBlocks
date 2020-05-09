@@ -10,8 +10,8 @@ contract SupplyBlocks {
         PaymentsBankAddress = new PaymentsBank();
     }
     
-    function createAccount(string _orgName, string _description, string addinfohash, string pub, string priv) public returns (address) {
-        address newAccount = new Warehouse(_orgName,msg.sender,_description, this, addinfohash, pub, priv);
+    function createAccount(string _orgName, string _description, string addinfohash, string pub, string priv, string invHash) public returns (address) {
+        address newAccount = new Warehouse(_orgName,msg.sender,_description, this, addinfohash, pub, priv, invHash);
         contractDetails[msg.sender] = newAccount;
         deployedAccounts.push(newAccount);
         return newAccount;
@@ -59,7 +59,7 @@ contract Warehouse {
     string public publicKey;
     uint private toPay;
     
-    constructor(string _orgName, address _manager, string _description, address _mainConAdd, string addinfohash, string pub, string priv) public {
+    constructor(string _orgName, address _manager, string _description, address _mainConAdd, string addinfohash, string pub, string priv, string invHash) public {
         orgName = _orgName;
         manager = _manager;
         description = _description;
@@ -67,6 +67,7 @@ contract Warehouse {
         AddInfoHash = addinfohash;
         publicKey = pub;
         privateKey = priv;
+        inventoryHash = invHash;
         secretKey = keccak256(abi.encode(_orgName, _manager, _description, _mainConAdd));
     }
     

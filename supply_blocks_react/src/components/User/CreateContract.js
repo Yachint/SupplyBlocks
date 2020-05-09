@@ -12,8 +12,11 @@ class CreateContract extends React.Component {
     state = { isLoading: false };
 
     onSubmit = (formValues) => {
-        //console.log(formValues);
+        console.log("Recieved!");
+        console.log(formValues);
+        console.log("isLoading :",this.state.isLoading);
         this.setState({ isLoading: true });
+        console.log("isLoading :",this.state.isLoading);
         const keys = KeyGenerator();
         this.props.initializeContract(formValues,keys.pubKey,keys.privKey);
     }

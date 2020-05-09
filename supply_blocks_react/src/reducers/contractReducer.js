@@ -6,7 +6,8 @@ const INITIAL_STATE = {
         AdditionalInfoHash: null,
         managerAddress: null,
         mainContractAddress: null,
-        publicKey: null
+        publicKey: null,
+        inventoryHash: null
     },
     AdditionalInfo:{
         name: null,
@@ -35,7 +36,8 @@ export default (state = INITIAL_STATE, action) => {
                     AdditionalInfoHash: null,
                     managerAddress: null,
                     mainContractAddress: null,
-                    publicKey: null
+                    publicKey: null,
+                    inventoryHash: null
                 },
                 AdditionalInfo: {
                     name: null,

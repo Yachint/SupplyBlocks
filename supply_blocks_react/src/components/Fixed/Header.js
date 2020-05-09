@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { message, Layout, Menu } from 'antd';
 import { connect } from 'react-redux';
-import { signIn, signOut, unloadContract } from '../../actions';
+import { signIn, signOut, unloadContract, unloadInventory } from '../../actions';
 import { withRouter } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import LogInMetamask from './LogInMetamask';
@@ -40,6 +40,7 @@ const HeaderComp = (props) => {
     const initiateLogout = () => {
         props.signOut();
         props.unloadContract();
+        props.unloadInventory();
         messageOnLogOut();
     }   
 
@@ -113,5 +114,6 @@ const mapStateToProps = (state) => {
 export default withRouter(connect(mapStateToProps,{
     signIn: signIn,
     signOut: signOut,
-    unloadContract: unloadContract
+    unloadContract: unloadContract,
+    unloadInventory: unloadInventory
 })(HeaderComp));

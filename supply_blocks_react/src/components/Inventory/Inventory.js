@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Table, Form, Popconfirm, Button, Space } from 'antd';
 import SimpleColumns from './Fixed/Columns';
-import FixedData from './Fixed/Data';
+// import FixedData from './Fixed/Data';
 import EditableCell from './Fixed/EditableCell';
 
-const Inventory = () => {
+const Inventory = (props) => {
+
     const editOps = {
       title: 'operation',
       dataIndex: 'operation',
@@ -48,7 +49,14 @@ const Inventory = () => {
     columns.push(deleteOps);
     columns.push(editOps);
     const [form] = Form.useForm();
-    const [data, setData] = useState(FixedData);
+    const {reduxData, reduxSetData, reduxDelete} = props;
+    const [data, setData] = useState(reduxData);
+    console.log('DATA :',data);
+
+    useEffect(() => {
+      setData(reduxData);
+    },[reduxData])
+
     const [editingKey, setEditingKey] = useState('');
     const [addRowKey, setAddRowKey] = useState(-1);
 
@@ -102,20 +110,31 @@ const Inventory = () => {
         newData.splice(index, 1, { ...item, ...row });
         setData(newData);
         setEditingKey('');
+        reduxSetData(newData);
       } else {
         newData.push(row);
         setData(newData);
         setEditingKey('');
+        reduxSetData(newData);
       }
     } catch (errInfo) {
       console.log('Validate Failed:', errInfo);
     }
     setAddRowKey(-1);
+    
   };
 
   const handleDelete = key => {
     const dataSource = [...data];
-    setData(dataSource.filter(item => item.key !== key));
+    const deleteItem = dataSource.find(p => p.key === key);
+    const ds = dataSource.filter(item => item.key !== key)
+    var i = 0;
+    ds.forEach(item => {
+      item.key = i+1;
+      i++;
+    })
+    setData(ds);
+    reduxDelete(ds, [deleteItem['prodId']]);
   };
 
   const handleAdd = () => {
