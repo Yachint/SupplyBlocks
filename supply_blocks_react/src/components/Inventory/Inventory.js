@@ -134,7 +134,9 @@ const Inventory = (props) => {
       i++;
     })
     setData(ds);
-    reduxDelete(ds, [deleteItem['prodId']]);
+    deleteItem.delete = 'true';
+    // console.log(deleteItem);
+    reduxDelete(ds, deleteItem);
   };
 
   const handleAdd = () => {

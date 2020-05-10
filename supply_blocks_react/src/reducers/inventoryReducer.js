@@ -36,7 +36,7 @@ export default (state = INITIAL_STATE, action) => {
         case 'LOCAL_DELETE':
             return{...state,
                 inventory: [...action.payload.updates],
-                changedState: _.omit(state.changedState, action.payload.deleteThese)
+                changedState: {...state.changedState,..._.mapKeys(action.payload.deleteThese, 'prodId')}
             }
 
         case 'INV_UPDATE':

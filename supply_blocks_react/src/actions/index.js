@@ -142,11 +142,12 @@ export const unloadInventory = () => {
 }
 
 export const deleteItems = (updates, deleteThese) => {
+    // console.log(deleteThese);
     return {
         type: 'LOCAL_DELETE',
         payload: {
             updates: updates,
-            deleteThese: deleteThese
+            deleteThese: [deleteThese]
         }
     }
 }
@@ -156,7 +157,7 @@ export const updateInventory = (inventoryUpdates) => {
     return async (dispatch, getState) => {
         const existingInv = getState().inventoryStore.inventory;
         const newUpdates = _.differenceWith(inventoryUpdates,existingInv,_.isEqual);
-        
+        console.log(newUpdates);
         dispatch({
             type: 'LOCAL_UPDATE',
             payload: {
