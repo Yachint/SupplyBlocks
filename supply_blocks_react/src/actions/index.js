@@ -4,6 +4,7 @@ import IPFS_Upload from '../apis/IPFS_Upload';
 import IPFS_Download from '../apis/IPFS_Download';
 import history from '../history';
 import ScabApi from '../apis/ScabApi';
+import rp from 'request-promise';
 import _ from 'lodash';
 
 export const signIn = (userAdd) => {
@@ -173,37 +174,49 @@ export const initiateInventorySave = () => {
         const { userAddress } = getState().auth;
         const { contractAddress } = getState().contract;
 
-        const data = {
-            inventory: inventory,
-            scabLedger: scabLedger
-        };
-
         const iterateState = _.values(changedState);
+        const requestPromises = [];
+        let response = {};
 
-        iterateState.forEach( async (item) => {
-            const postBody = {
-                typeOfStore: "item",
-                changedState: item
-            }
-            await ScabApi.post('/transaction/store/broadcast',postBody);
+        iterateState.forEach((item) => {
+            const requestOptions = {
+                uri: "http://scab-blockchain.herokuapp.com/transaction/store/broadcast",
+                method: 'POST',
+                body: {
+                    typeOfStore: "item",
+                    changedState: item
+                },
+                json: true
+            };
+
+            requestPromises.push(rp(requestOptions));
         });
 
-        const response = await ScabApi.get('/mine');   
+        Promise.all(requestPromises).then(async () => {
+            console.log("All transactions posted to SCAB.");
+            response = await ScabApi.get('/mine');
+            console.log(response.data['block']);
 
-        const invHash = await IPFS_Upload(data);
+            const data = {
+                inventory: inventory,
+                scabLedger: _.concat(scabLedger, response.data['block'])
+            };
 
-        const userWarehouse = Warehouse(contractAddress);
-        await userWarehouse.methods.setInventoryHash(invHash).send({
-            from: userAddress
+            const invHash = await IPFS_Upload(data);
+
+            const userWarehouse = Warehouse(contractAddress);
+            await userWarehouse.methods.setInventoryHash(invHash).send({
+                from: userAddress
+            });
+
+            dispatch({
+                type: 'INV_UPDATE',
+                payload:{
+                    currentHash: invHash,
+                    ledger: response.data['block']
+                }
+            });
         });
-
-        console.log(response.data['block']);
-        dispatch({
-            type: 'INV_UPDATE',
-            payload:{
-                currentHash: invHash,
-                ledger: response.data['block']
-            }
-        });
+        
     }
 }

@@ -42,7 +42,7 @@ export default (state = INITIAL_STATE, action) => {
         case 'INV_UPDATE':
             return{...state,
                 currentHash: action.payload.currentHash,
-                scabLedger: state.scabLedger.push(action.payload.ledger),
+                scabLedger: _.concat(state.scabLedger, action.payload.ledger),
                 changedState: {}
             }
         

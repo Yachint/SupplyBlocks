@@ -51,7 +51,7 @@ const Inventory = (props) => {
     const [form] = Form.useForm();
     const {reduxData, reduxSetData, reduxDelete} = props;
     const [data, setData] = useState(reduxData);
-    console.log('DATA :',data);
+    // console.log('DATA :',data);
 
     useEffect(() => {
       setData(reduxData);
