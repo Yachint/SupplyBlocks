@@ -1,9 +1,10 @@
 import React,{ useEffect, useState } from 'react';
 import Inventory from './Inventory';
-import { Spin, notification } from 'antd';
+import { Spin, notification} from 'antd';
 import { Link } from 'react-router-dom';
 import { Empty, Button } from 'antd';
 import { connect } from 'react-redux';
+import InventoryLogs from './InventoryLogs';
 import _ from 'lodash';
 import { 
     loadInventory,
@@ -77,14 +78,18 @@ const InventoryPage = (props) => {
     const renderData = () => {
         if(mainContractAddress !== null){
             return(<Spin spinning={!isLoaded} tip="Fetching your inventory details, Just a second...">
-            <Inventory 
-            reduxData={inventory}
-            reduxSetData={setData}
-            reduxDelete={deleteData}
-            />
-            <Button type="primary" loading={submitLoader.isLoading} onClick={() => saveData()}>
-            Apply Changes
-            </Button>
+                
+                    <Inventory 
+                    reduxData={inventory}
+                    reduxSetData={setData}
+                    reduxDelete={deleteData}
+                    />
+                    <Button type="primary" loading={submitLoader.isLoading} onClick={() => saveData()}>
+                    Apply Changes
+                    </Button>
+                    <br/><br/><br/>
+                    <InventoryLogs data={props.scabLedger}/>
+                
             </Spin>);
         } else{
             return(
@@ -123,7 +128,8 @@ const mapStateToProps = (state) => {
         inventory: state.inventoryStore.inventory,
         isSignedIn: state.auth.isSignedIn,
         mainContractAddress: state.contract.contractDetails.mainContractAddress,
-        changedState: state.inventoryStore.changedState
+        changedState: state.inventoryStore.changedState,
+        scabLedger: state.inventoryStore.scabLedger
         
     }
 }

@@ -162,6 +162,8 @@ const Inventory = (props) => {
 
     return(
         <Form form={form} component={false}>
+        <h2>Inventory Management :</h2>
+        <br/>
         <Button
           onClick={handleAdd}
           type="primary"
