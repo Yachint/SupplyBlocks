@@ -20,7 +20,8 @@ const HeaderComp = (props) => {
         if(onWhichPage === undefined) return ["1"];
         else if(onWhichPage === 'Inventory') return ["2"];
         else if(onWhichPage === 'Orders') return ["3"];
-        else return ["4"];
+        else if(onWhichPage === 'Store') return ["4"];
+        else return ["5"];
     }
 
     const initiateLogin = async () =>{
@@ -75,6 +76,9 @@ const HeaderComp = (props) => {
                         <Link to="/Orders">Orders</Link>
                     </Menu.Item>
                     <Menu.Item className = "ItemPos" key="4">
+                        <Link to="/Store">SCAB Store</Link>
+                    </Menu.Item>
+                    <Menu.Item className = "ItemPos" key="5">
                         <Link to="/User">User</Link>
                     </Menu.Item>
                     <LogInMetamask initiateLogout={initiateLogout} isLoading={isLoading} isSignedIn={props.isSignedIn}/>

@@ -1,6 +1,6 @@
 import React from "react";
-import { Layout, Breadcrumb, Statistic, List, Typography, Divider } from "antd";
-const { Title, Text } = Typography;
+import { Statistic, List, Typography } from "antd";
+const { Title } = Typography;
 const data = [
   "Login with metamask.",
   "Add your inventory details and info.",
