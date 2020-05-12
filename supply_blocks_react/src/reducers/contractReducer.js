@@ -3,18 +3,17 @@ const INITIAL_STATE = {
     contractDetails: {
         orgName: null,
         description: null,
-        AdditionalInfoHash: null,
+        IpfsHash: null,
         managerAddress: null,
         mainContractAddress: null,
-        publicKey: null,
-        inventoryHash: null
     },
     AdditionalInfo:{
         name: null,
         designation: null,
         companyAddress: null,
         warehouseAddress: null,
-        productCategories: []
+        productCategories: [],
+        pubKey: null
     }
 }
 
@@ -33,18 +32,17 @@ export default (state = INITIAL_STATE, action) => {
                 contractDetails: {
                     orgName: null,
                     description: null,
-                    AdditionalInfoHash: null,
+                    IpfsHash: null,
                     managerAddress: null,
                     mainContractAddress: null,
-                    publicKey: null,
-                    inventoryHash: null
                 },
                 AdditionalInfo: {
                     name: null,
                     designation: null,
                     companyAddress: null,
                     warehouseAddress: null,
-                    productCategories: []
+                    productCategories: [],
+                    pubKey: null
                 }
             }
             

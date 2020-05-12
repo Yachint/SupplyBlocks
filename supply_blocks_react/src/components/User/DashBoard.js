@@ -92,7 +92,7 @@ const DashBoard = (props) =>{
                     Warehouse Address: {AdditionalInfo.warehouseAddress}
                     <br />
                     </Descriptions.Item>
-                    <Descriptions.Item label="Organization Public Key" span={3}>{contractDetails.publicKey}</Descriptions.Item>
+                    <Descriptions.Item label="Organization Public Key" span={3}>{AdditionalInfo.pubKey}</Descriptions.Item>
                 </Descriptions>
             );
         }

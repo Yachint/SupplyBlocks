@@ -10,8 +10,8 @@ contract SupplyBlocks {
         PaymentsBankAddress = new PaymentsBank();
     }
     
-    function createAccount(string _orgName, string _description, string addinfohash, string pub, string priv, string invHash) public returns (address) {
-        address newAccount = new Warehouse(_orgName,msg.sender,_description, this, addinfohash, pub, priv, invHash);
+    function createAccount(string _orgName, string _description, string ipfs, string priv) public returns (address) {
+        address newAccount = new Warehouse(_orgName,msg.sender,_description, this, ipfs, priv);
         contractDetails[msg.sender] = newAccount;
         deployedAccounts.push(newAccount);
         return newAccount;
@@ -45,9 +45,7 @@ contract Warehouse {
         string change; //In JSON Format
     }
     
-    string public inventoryHash;
-    string public ordersHash;
-    string public AddInfoHash;
+    string public IpfsHash;
     address public mainConAdd;
     string public orgName;
     address public manager;
@@ -55,19 +53,15 @@ contract Warehouse {
     Request[] public requestArray;
     ActionsInventory[] public inventoryUpdates;
     bytes32 private secretKey;
-    string public privateKey;
-    string public publicKey;
-    uint private toPay;
+    string public privKey;
     
-    constructor(string _orgName, address _manager, string _description, address _mainConAdd, string addinfohash, string pub, string priv, string invHash) public {
+    constructor(string _orgName, address _manager, string _description, address _mainConAdd, string ipfs, string priv) public {
         orgName = _orgName;
         manager = _manager;
         description = _description;
         mainConAdd = _mainConAdd;
-        AddInfoHash = addinfohash;
-        publicKey = pub;
-        privateKey = priv;
-        inventoryHash = invHash;
+        IpfsHash = ipfs;
+        privKey = priv;
         secretKey = keccak256(abi.encode(_orgName, _manager, _description, _mainConAdd));
     }
     
@@ -78,19 +72,11 @@ contract Warehouse {
     //     return privateKey;
     // }
     
+    function setIpfsHash(string hash) public {
+        IpfsHash = hash;
+    }
     
     //INVENTORY FUNCTIONS START--------------------------------
-    
-    
-    function setInventoryHash(string newHash) public {
-        require(msg.sender==manager);
-        inventoryHash = newHash;
-    }
-    
-    function setOrderHash(string newHash) public {
-        require(msg.sender==manager);
-        ordersHash = newHash;
-    }
     
     function addInventoryUpdates(uint givenProdId, string JSON) public{
         ActionsInventory memory action = ActionsInventory({
