@@ -55,7 +55,7 @@ contract Warehouse {
     Request[] public requestArray;
     ActionsInventory[] public inventoryUpdates;
     bytes32 private secretKey;
-    string private privateKey;
+    string public privateKey;
     string public publicKey;
     uint private toPay;
     
@@ -73,10 +73,10 @@ contract Warehouse {
     
     //GETTERS AND SETTERS FUNCTIONS START--------------------------------
     
-    function getPrivateKey() public view returns (string){
-        require(msg.sender==manager);
-        return privateKey;
-    }
+    // function getPrivateKey() public view returns (string){
+    //     require(msg.sender==manager);
+    //     return privateKey;
+    // }
     
     
     //INVENTORY FUNCTIONS START--------------------------------

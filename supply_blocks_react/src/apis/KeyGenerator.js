@@ -1,14 +1,12 @@
-const crypto = require('crypto');
+const NodeRSA = require('node-rsa');
 
-export default ()=>{
-    var prime_length = 200;
-    var diffHell = crypto.createDiffieHellman(prime_length);
-
-    diffHell.generateKeys('base64');
-    return{
-        pubKey: diffHell.getPublicKey('base64'),
-        privKey: diffHell.getPrivateKey('base64')
+const KeyGenerator = () => {
+    const key = new NodeRSA({b: 512},{format: 'string'},{browser: 'true'});
+    return {
+        privKey: key.exportKey(['private']),
+        pubKey: key.exportKey(['public'])
     }
-    // console.log("Public Key : " ,);
-    // console.log("Private Key : " ,);
 }
+
+
+module.exports = KeyGenerator;

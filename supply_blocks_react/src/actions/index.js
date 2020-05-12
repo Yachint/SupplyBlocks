@@ -4,7 +4,10 @@ import IPFS_Upload from '../apis/IPFS_Upload';
 import IPFS_Download from '../apis/IPFS_Download';
 import history from '../history';
 import ScabApi from '../apis/ScabApi';
+import AES_Encrypt from '../apis/AES_Encrypt';
+import AES_Decrypt from '../apis/AES_Decrypt';
 import rp from 'request-promise';
+import KeyGenerator from '../apis/KeyGenerator';
 import _ from 'lodash';
 
 export const signIn = (userAdd) => {
@@ -31,11 +34,15 @@ export const loadContract = (conAddress) => {
             AdditionalInfoHash: await userWarehouse.methods.AddInfoHash().call(),
             managerAddress: await userWarehouse.methods.manager().call(),
             mainContractAddress: await userWarehouse.methods.mainConAdd().call(),
-            publicKey: await userWarehouse.methods.publicKey().call(),
+            publicKey: await IPFS_Download(await userWarehouse.methods.publicKey().call()),
             inventoryHash: await userWarehouse.methods.inventoryHash().call()
         }
 
-        const AdditionalObj = await IPFS_Download(contractDetails.AdditionalInfoHash);
+        
+        const keyHash = await userWarehouse.methods.privateKey().call();
+        const key = await IPFS_Download(keyHash);
+
+        const AdditionalObj = AES_Decrypt(await IPFS_Download(contractDetails.AdditionalInfoHash),key);
 
         dispatch({
             type: 'CONTRACT_LOAD',
@@ -57,9 +64,15 @@ export const unloadContract = () => {
     }
 }
 
-export const initializeContract = (formValues, pubKey, privKey) => {
+export const initializeContract = (formValues) => {
     return async (dispatch, getState) => {
         const { userAddress } = getState().auth;
+
+        console.log("GENERATING KEYS");
+        const keys = KeyGenerator();
+
+        const {pubKey, privKey} = keys;
+        console.log(pubKey);
 
         const AdditionalInfo = {
             name: formValues.name,
@@ -74,25 +87,32 @@ export const initializeContract = (formValues, pubKey, privKey) => {
             scabLedger: []
         };
 
-        const hash = await IPFS_Upload(AdditionalInfo);
-        const invHash = await IPFS_Upload(data);
+        console.log("Encryption Start");
+        const hash = await IPFS_Upload(AES_Encrypt(AdditionalInfo,privKey));
+        const invHash = await IPFS_Upload(AES_Encrypt(data,privKey));
+        console.log("Encryption End");
+
+        console.log("IPFS Upload Start");
+        const pubHash = await IPFS_Upload(pubKey);
+        const privHash = await IPFS_Upload(privKey);
+        console.log("IPFS Upload End");
+
         console.log("IPFS HASH : ",hash);
         console.log(formValues);
         await SupplyBlocks.methods.createAccount(
             formValues.orgName,
             formValues.description,
             hash,
-            pubKey,
-            privKey,
+            pubHash,
+            privHash,
             invHash
         ).send({ from: userAddress });
         
         const address = await SupplyBlocks.methods.getContractAddress(userAddress).call();
         
         console.log("New Contract Address :",address);
-
-        const userWarehouse = Warehouse(address);
         
+        const userWarehouse = Warehouse(address);
         // await userWarehouse.methods.setInventoryHash(invHash).send({
         //     from: userAddress
         // });
@@ -103,7 +123,7 @@ export const initializeContract = (formValues, pubKey, privKey) => {
             AdditionalInfoHash: hash,
             managerAddress: userAddress,
             mainContractAddress: await userWarehouse.methods.mainConAdd().call(),
-            publicKey: pubKey,
+            publicKey: pubHash,
             inventoryHash: invHash
         }
 
@@ -122,7 +142,12 @@ export const initializeContract = (formValues, pubKey, privKey) => {
 
 export const loadInventory = () => {
     return async (dispatch, getState) => {
-        const inventoryDetails = await IPFS_Download(getState().contract.contractDetails.inventoryHash);
+        const { contractAddress } = getState().contract;
+        const userWarehouse = Warehouse(contractAddress);
+        const keyHash = await userWarehouse.methods.privateKey().call();
+        const key = await IPFS_Download(keyHash);
+        
+        const inventoryDetails = AES_Decrypt(await IPFS_Download(getState().contract.contractDetails.inventoryHash),key);
 
         dispatch({
             type: 'INV_LOAD',
@@ -202,10 +227,12 @@ export const initiateInventorySave = () => {
                 inventory: inventory,
                 scabLedger: _.concat(scabLedger, response.data['block'])
             };
-
-            const invHash = await IPFS_Upload(data);
-
+            
             const userWarehouse = Warehouse(contractAddress);
+            const keyHash = await userWarehouse.methods.privateKey().call();
+            const key = await IPFS_Download(keyHash);
+            const invHash = await IPFS_Upload(AES_Encrypt(data,key));
+
             await userWarehouse.methods.setInventoryHash(invHash).send({
                 from: userAddress
             });
