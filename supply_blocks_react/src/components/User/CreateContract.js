@@ -4,7 +4,9 @@ import history from '../../history';
 import { connect } from 'react-redux';
 import { initializeContract } from '../../actions';
 import ContractForm from '../Reusable/Form';
-import { Spin, notification } from 'antd';
+import { Spin, notification, Result, Button } from 'antd';
+import ContractCreateSteps from './Fixed/ContractCreateSteps';
+import { Link } from 'react-router-dom';
 
 
 class CreateContract extends React.Component {
@@ -37,16 +39,28 @@ class CreateContract extends React.Component {
 
     render(){
         return(
-        <Spin spinning={this.state.isLoading && this.props.mainContractAddress === null} 
-        tip="Creating your Smart-Contract, Please be patient...">
-            <PageHeader
-            className="site-page-header"
-            onBack={() => history.push('/')}
-            title="Create a new Warehouse Contract"
-            />
+        <React.Fragment>
+            <ContractCreateSteps />
+            <Spin spinning={this.state.isLoading && this.props.mainContractAddress === null} 
+            tip="Creating your Smart-Contract, Please be patient...">
+                <PageHeader
+                className="site-page-header"
+                onBack={() => history.push('/')}
+                title="Create a new Warehouse Contract"
+                />
 
-            <ContractForm onSubmit={this.onSubmit}/>
-        </Spin>
+                {this.props.steps.isFinished ?  <Result
+                        status="success"
+                        title="Successfully Created Smart Contract"
+                        subTitle="Please Visit the dashboard for further details"
+                        extra={[
+                         <Button type="primary" key="console">
+                         <Link to="/" >Go to Dashboard</Link>
+                        </Button>
+                        ]}
+                /> : <ContractForm onSubmit={this.onSubmit}/>}
+            </Spin>
+        </React.Fragment>
     );
 
     }
@@ -54,7 +68,10 @@ class CreateContract extends React.Component {
 }
 
 const mapStateToProps = (state) => {
-    return { mainContractAddress: state.contract.contractDetails.mainContractAddress };
+    return { 
+        mainContractAddress: state.contract.contractDetails.mainContractAddress,
+        steps: state.steps         
+    };
 }
 
 export default connect(mapStateToProps,{

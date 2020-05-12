@@ -20,8 +20,13 @@ export const signIn = (userAdd) => {
 }
 
 export const signOut = () => {
-    return{
-        type: 'SIGN_OUT'
+    return async (dispatch) => {
+        dispatch({
+            type: 'RESET'
+        });
+        dispatch({
+            type: 'SIGN_OUT'
+        });
     }
 }
 
@@ -68,7 +73,16 @@ export const initializeContract = (formValues) => {
     return async (dispatch, getState) => {
         const { userAddress } = getState().auth;
 
+        dispatch({
+            type: 'START'
+        });
+
         console.log("GENERATING KEYS");
+
+        dispatch({
+            type: 'GEN'
+        });
+
         const keys = KeyGenerator();
 
         const {pubKey, privKey} = keys;
@@ -87,10 +101,18 @@ export const initializeContract = (formValues) => {
             scabLedger: []
         };
 
+        dispatch({
+            type: 'ENC'
+        });
+
         console.log("Encryption Start");
         const hash = await IPFS_Upload(AES_Encrypt(AdditionalInfo,privKey));
         const invHash = await IPFS_Upload(AES_Encrypt(data,privKey));
         console.log("Encryption End");
+
+        dispatch({
+            type: 'UPLOAD'
+        });
 
         console.log("IPFS Upload Start");
         const pubHash = await IPFS_Upload(pubKey);
@@ -98,7 +120,9 @@ export const initializeContract = (formValues) => {
         console.log("IPFS Upload End");
 
         console.log("IPFS HASH : ",hash);
-        console.log(formValues);
+        dispatch({
+            type: 'CREATE'
+        });
         await SupplyBlocks.methods.createAccount(
             formValues.orgName,
             formValues.description,
@@ -136,7 +160,11 @@ export const initializeContract = (formValues) => {
             }
         });
 
-        history.push('/');
+        dispatch({
+            type: 'FIN'
+        });
+
+        // history.push('/');
     }
 }
 
