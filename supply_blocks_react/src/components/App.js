@@ -15,6 +15,7 @@ import Orders from './Orders/Orders';
 import DashBoard from './User/DashBoard';
 import CreateContract from './User/CreateContract';
 import ScabMainPage from './ScabStore/mainPage';
+import PaymentsBank from './PaymentsBank/BankMain';
 
 class App extends React.Component {
 
@@ -28,6 +29,7 @@ class App extends React.Component {
                     <Route path="/Inventory" exact component = {InventoryPage} />
                     <Route path="/User/NewContract" exact component = {CreateContract} />
                     <Route path="/Store" exact component={ScabMainPage} />
+                    <Route path="/PaymentsBank" exact component={PaymentsBank} />
                     <Redirect to="/" />
                 </Switch>
             );

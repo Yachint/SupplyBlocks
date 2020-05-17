@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { message, Layout, Menu } from 'antd';
 import { connect } from 'react-redux';
 import { signIn, signOut, unloadContract, unloadInventory } from '../../actions';
@@ -13,6 +13,12 @@ const HeaderComp = (props) => {
 
     const [isLoading, setLoading] = useState(false);
 
+    useEffect(() => {
+        if(props.mainContractAddress!==null){
+            setLoading(false);
+        }
+    },[isLoading, props.mainContractAddress])
+
     const getSelectedKey = () => {
         const { location } = props;
         const pathSnippets = location.pathname.split('/').filter(i => i);
@@ -21,6 +27,7 @@ const HeaderComp = (props) => {
         else if(onWhichPage === 'Inventory') return ["2"];
         else if(onWhichPage === 'Orders') return ["3"];
         else if(onWhichPage === 'Store') return ["4"];
+        else if(onWhichPage === 'PaymentsBank') return ["6"];
         else return ["5"];
     }
 
@@ -34,7 +41,6 @@ const HeaderComp = (props) => {
         }else{
             props.signIn(accounts[0]);
             messageOnLogin();
-            setLoading(false);
         }
     }
 
@@ -74,6 +80,9 @@ const HeaderComp = (props) => {
                     </Menu.Item>
                     <Menu.Item className = "ItemPos" key="3">
                         <Link to="/Orders">Orders</Link>
+                    </Menu.Item>
+                    <Menu.Item className = "ItemPos" key="6">
+                        <Link to="/PaymentsBank">Payments Bank</Link>
                     </Menu.Item>
                     <Menu.Item className = "ItemPos" key="4">
                         <Link to="/Store">SCAB Store</Link>

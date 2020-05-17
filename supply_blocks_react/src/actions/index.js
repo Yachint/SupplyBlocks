@@ -321,6 +321,7 @@ export const updateInventory = (inventoryUpdates) => {
 export const initiateInventorySave = () => {
     return async (dispatch, getState) => {
 
+        dispatch({type: 'START'});
         const { inventory, scabLedger, changedState } = getState().inventoryStore;
         const { userAddress } = getState().auth;
         const { contractAddress, AdditionalInfo } = getState().contract;
@@ -328,7 +329,7 @@ export const initiateInventorySave = () => {
         const iterateState = _.values(changedState);
         const requestPromises = [];
         let response = {};
-
+        dispatch({type: 'GEN'});
         iterateState.forEach((item) => {
             const requestOptions = {
                 uri: "http://scab-blockchain.herokuapp.com/transaction/store/broadcast",
@@ -344,6 +345,7 @@ export const initiateInventorySave = () => {
         });
 
         Promise.all(requestPromises).then(async () => {
+            
             console.log("All transactions posted to SCAB.");
             response = await ScabApi.get('/mine');
             console.log(response.data['block']);
@@ -352,25 +354,28 @@ export const initiateInventorySave = () => {
                 inventory: inventory,
                 scabLedger: _.concat(scabLedger, response.data['block'])
             };
-            
+            dispatch({type: 'ENC'});
             const userWarehouse = Warehouse(contractAddress);
             const keyHash = await userWarehouse.methods.privKey().call();
             const key = await IPFS_Download(keyHash);
 
             const encryptedAddInfo = AES_Encrypt(AdditionalInfo,key);
             const encryptedInvInfo = AES_Encrypt(data,key);            
-
+            dispatch({type: 'UPLOAD'});
             const batchIpfsObject = {
                 AdditionalInfo: encryptedAddInfo,
                 Inventory: encryptedInvInfo
             }
             
+            dispatch({type: 'CREATE'});
+
             const hash = await IPFS_Upload(batchIpfsObject);
 
             await userWarehouse.methods.setIpfsHash(hash).send({
                 from: userAddress
             });
-
+            dispatch({type: 'FIN'});
+    
             dispatch({
                 type: 'INV_UPDATE',
                 payload:{
@@ -378,6 +383,7 @@ export const initiateInventorySave = () => {
                     ledger: response.data['block']
                 }
             });
+            dispatch({type: 'RESET'});
         });
         
     }

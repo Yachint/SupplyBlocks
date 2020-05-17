@@ -2,9 +2,11 @@ import React,{ useEffect, useState } from 'react';
 import Inventory from './Inventory';
 import { Spin, notification} from 'antd';
 import { Link } from 'react-router-dom';
-import { Empty, Button } from 'antd';
+import { Empty, Button, PageHeader } from 'antd';
 import { connect } from 'react-redux';
 import InventoryLogs from './InventoryLogs';
+import history from '../../history';
+import InventorySteps from './Fixed/InventorySteps';
 import _ from 'lodash';
 import { 
     loadInventory,
@@ -78,7 +80,12 @@ const InventoryPage = (props) => {
     const renderData = () => {
         if(mainContractAddress !== null){
             return(<Spin spinning={!isLoaded} tip="Fetching your inventory details, Just a second...">
-                
+                    <InventorySteps />
+                    <PageHeader
+                    className="site-Inventory"
+                    onBack={() => {history.push('/')}}
+                    title="Inventory"
+                    />
                     <Inventory 
                     reduxData={inventory}
                     reduxSetData={setData}

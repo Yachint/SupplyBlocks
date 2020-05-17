@@ -3,21 +3,25 @@ import { Steps } from 'antd';
 import { connect } from 'react-redux';
 import { 
     CloudUploadOutlined, 
+    BlockOutlined, 
     SolutionOutlined, 
     LoadingOutlined, 
-    CheckCircleOutlined,
     LockOutlined
 } from '@ant-design/icons';
 
 const { Step } = Steps;
 
-const ContractUpdateSteps = (props) =>{
+const InventorySteps = (props) =>{
 
     const { steps } = props;
-    const { isStarted, isEncrypting, isUploading, isCreating, isFinished } = steps;
+    const { isStarted, isGenerating, isEncrypting, isUploading, isCreating, isFinished } = steps;
 
     const getStatus = (statusName) => {
         switch(statusName){
+            case "Generating Keys":
+                if(isGenerating === false) return "wait";
+                else if(isGenerating === true && isEncrypting === false) return "process";
+                else return "finish";
             case "Encrypting Data":
                 if(isEncrypting === false) return "wait";
                 else if(isEncrypting === true && isUploading === false) return "process";
@@ -41,17 +45,17 @@ const ContractUpdateSteps = (props) =>{
 
     return(<React.Fragment>
         {isStarted ? <Steps>
-            <Step status={getStatus("Encrypting Data")} title="Encrypting Data" icon={
-                getStatus("Generating Keys") === "process" ?  <LoadingOutlined /> : <LockOutlined /> 
+            <Step status={getStatus("Generating Keys")} title="Verify through SCAB" icon={
+                getStatus("Generating Keys") === "process" ? <LoadingOutlined /> : <BlockOutlined />
             } />
-            <Step status={getStatus("Uploading to IPFS")} title="Uploading to IPFS" icon={
-                getStatus("Uploading to IPFS") === "process" ?  <LoadingOutlined /> : <CloudUploadOutlined />
+            <Step status={getStatus("Encrypting Data")} title="Encrypt Data" icon={
+                getStatus("Encrypting Data") === "process" ? <LoadingOutlined /> : <LockOutlined />
             } />
-            <Step status={getStatus("Creating Smart Contract")} title="Updating Smart Contract" icon={
-                getStatus("Creating Smart Contract") === "process" ?  <LoadingOutlined /> : <SolutionOutlined />
+            <Step status={getStatus("Uploading to IPFS")} title="Upload to IPFS" icon={
+                getStatus("Uploading to IPFS") === "process" ? <LoadingOutlined /> : <CloudUploadOutlined /> 
             } />
-            <Step status={getStatus("Completed")} title="Completed" icon={
-                getStatus("Completed") === "process" ? <LoadingOutlined /> : <CheckCircleOutlined />
+            <Step status={getStatus("Creating Smart Contract")} title="Update Contract" icon={
+                getStatus("Creating Smart Contract") === "process" ? <LoadingOutlined /> : <SolutionOutlined />
             } />
         </Steps> : <div></div>}
         
@@ -64,4 +68,4 @@ const mapStateToProps = (state) => {
     return { steps : state.steps }
 }
 
-export default connect(mapStateToProps)(ContractUpdateSteps);
+export default connect(mapStateToProps)(InventorySteps);
