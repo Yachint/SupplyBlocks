@@ -65,6 +65,12 @@ contract Warehouse {
         secretKey = keccak256(abi.encode(_orgName, _manager, _description, _mainConAdd));
     }
     
+    function updateDetails(string desc, string name, string hash) public{
+        orgName = name;
+        description = desc;
+        IpfsHash = hash;
+    }
+    
     //GETTERS AND SETTERS FUNCTIONS START--------------------------------
     
     // function getPrivateKey() public view returns (string){
@@ -152,6 +158,7 @@ contract Warehouse {
         req.status = _status;
     }
     
+    
     function getRequestsLength() public view returns(uint){
         return requestArray.length;
     }
@@ -216,32 +223,23 @@ contract Warehouse {
 
 contract PaymentsBank{
     
-    struct PaymentHistory{
-        address buyerContract;
-        address sellerContract;
-        uint amount;
-        uint txTime;
-        string actionType;
-    }
+    mapping(address => string) paymentHistory;
     
-    PaymentHistory[] public ledger;
-    
-    function initiateTransaction(address buyerCon, address sellerCon, string _actionType, uint _amount, bytes32 secret) public {
+    function initiateTransaction(address buyerCon, address sellerCon, uint _amount, bytes32 secret) public {
         
         Warehouse insatnceBuyer = Warehouse(buyerCon);
         insatnceBuyer.transferMoney(this, _amount, secret);
         sellerCon.transfer(address(this).balance);
         //sellerCon.transfer(msg.value);
-        
-        PaymentHistory memory entry = PaymentHistory({
-            buyerContract: buyerCon,
-            sellerContract: sellerCon,
-            amount: _amount,
-            txTime: now,
-            actionType: _actionType
-        });
-        
-        ledger.push(entry);
+
+    }
+    
+    function getUserHistory(address user) public view returns (string){
+        return paymentHistory[user];
+    }
+    
+    function setUserHistory(address user, string history) public {
+        paymentHistory[user] = history;
     }
     
     function transferFunds(address WareCon) public payable {

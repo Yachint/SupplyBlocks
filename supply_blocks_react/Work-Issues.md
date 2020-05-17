@@ -6,9 +6,9 @@
 - ~~Make sure all inventory are working in conjuction with SCAB_F and Store.json~~
 - ~~Make sure scabLedger also gets uploaded to IPFS~~
 - ~~Provide view history/logs option in Inventory~~
-- Use Result component to alert user after contract creation
+- ~~Use Result component to alert user after contract creation~~
 - Fix delete for all other json elements (users,orders,sellers)
-- Public/Private key encryption on IPFS based storage for increased security
+- ~~Public/Private key encryption on IPFS based storage for increased security~~
 - Add + Build ***Payments bank*** Page (actions+reducers)
 - Test Orders login in smart contract
 - Add + Build ***Orders*** Page (actions+reducers)

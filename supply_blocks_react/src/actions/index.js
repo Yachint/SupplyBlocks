@@ -69,6 +69,102 @@ export const unloadContract = () => {
     }
 }
 
+export const deleteContract = () => {
+    return async (dispatch, getState) => {
+        const { userAddress } = getState().auth;
+
+        await SupplyBlocks.methods.deactivateAccount(
+            userAddress
+        ).send({ from: userAddress });
+
+        dispatch({
+            type: 'CONTRACT_UNLOAD'
+        });
+
+        history.push('/');
+    }
+}
+
+export const updateContract = (formValues) => {
+    return async (dispatch, getState) => {
+        const { userAddress } = getState().auth;
+        const { contractAddress, contractDetails, AdditionalInfo } = getState().contract;
+        const { inventory, scabLedger } = getState().inventoryStore;
+
+        dispatch({
+            type: 'START'
+        });
+
+        const NewAdditionalInfo = {
+            name: formValues.name,
+            designation: formValues.designation,
+            companyAddress: formValues.companyAddress,
+            warehouseAddress: formValues.warehouseAddress,
+            productCategories: formValues.productCategories,
+            pubKey: AdditionalInfo.pubKey
+        }
+
+        const data = {
+            inventory: inventory,
+            scabLedger: scabLedger
+        };
+
+        const userWarehouse = Warehouse(contractAddress);
+        const keyHash = await userWarehouse.methods.privKey().call();
+        const key = await IPFS_Download(keyHash);
+
+        dispatch({
+            type: 'ENC'
+        });
+
+        const encryptedAddInfo = AES_Encrypt(NewAdditionalInfo,key);
+        const encryptedInvInfo = AES_Encrypt(data,key);            
+
+        const batchIpfsObject = {
+                AdditionalInfo: encryptedAddInfo,
+                Inventory: encryptedInvInfo
+        }
+
+        dispatch({
+            type: 'UPLOAD'
+        });
+            
+        const hash = await IPFS_Upload(batchIpfsObject);
+
+        dispatch({
+            type: 'CREATE'
+        });
+
+        await userWarehouse.methods.updateDetails(formValues.description, formValues.orgName, hash).send({
+            from: userAddress
+        });
+
+
+        const updatedContractDetails = {
+            orgName: formValues.orgName,
+            description: formValues.description,
+            IpfsHash: hash,
+            managerAddress: contractDetails.managerAddress,
+            mainContractAddress: contractDetails.mainContractAddress,
+        }
+
+        dispatch({
+            type: 'CONTRACT_LOAD',
+            payload: {
+                contractAddress: contractAddress,
+                contractDetails: updatedContractDetails,
+                AdditionalInfo: NewAdditionalInfo
+            }
+        });
+
+        dispatch({
+            type: 'FIN'
+        });
+
+        history.push('/');
+    }
+}
+
 export const initializeContract = (formValues) => {
     return async (dispatch, getState) => {
         const { userAddress } = getState().auth;
@@ -164,7 +260,6 @@ export const initializeContract = (formValues) => {
         dispatch({
             type: 'FIN'
         });
-
         // history.push('/');
     }
 }

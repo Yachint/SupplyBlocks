@@ -58,7 +58,7 @@ const HeaderComp = (props) => {
     };
 
     const getMenuIems = () => {
-        if(props.isSignedIn){
+        if(props.isSignedIn && props.mainContractAddress !== null){
             return (
                 <Menu 
                     theme="dark" 
@@ -80,6 +80,29 @@ const HeaderComp = (props) => {
                     </Menu.Item>
                     <Menu.Item className = "ItemPos" key="5">
                         <Link to="/User">User</Link>
+                    </Menu.Item>
+                    <LogInMetamask initiateLogout={initiateLogout} isLoading={isLoading} isSignedIn={props.isSignedIn}/>
+            </Menu>
+            );
+        } else if(props.isSignedIn && props.mainContractAddress === null){
+            return (
+                <Menu 
+                    theme="dark" 
+                    mode="horizontal" 
+                    defaultSelectedKeys={['1']} 
+                    className="MenuPos"
+                    selectedKeys = {getSelectedKey()}>
+                    <Menu.Item className = "ItemPos" key="1">
+                        <Link to="/">DashBoard</Link>
+                    </Menu.Item>
+                    <Menu.Item className = "ItemPos" key="2">
+                        <Link to="/Inventory">Inventory</Link>
+                    </Menu.Item>
+                    <Menu.Item className = "ItemPos" key="3">
+                        <Link to="/Orders">Orders</Link>
+                    </Menu.Item>
+                    <Menu.Item className = "ItemPos" key="4">
+                        <Link to="/Store">SCAB Store</Link>
                     </Menu.Item>
                     <LogInMetamask initiateLogout={initiateLogout} isLoading={isLoading} isSignedIn={props.isSignedIn}/>
             </Menu>
@@ -112,7 +135,10 @@ const HeaderComp = (props) => {
 }
 
 const mapStateToProps = (state) => {
-    return { isSignedIn: state.auth.isSignedIn }; 
+    return { 
+        isSignedIn: state.auth.isSignedIn,
+        mainContractAddress: state.contract.contractDetails.mainContractAddress
+    }; 
 }
 
 export default withRouter(connect(mapStateToProps,{

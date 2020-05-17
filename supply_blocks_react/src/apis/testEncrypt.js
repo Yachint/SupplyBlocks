@@ -13,6 +13,6 @@ const info = {
 }
 
 const encrypted = AES_Encrypt(info,key);
-console.log(encrypted);
+console.log("Encrypted text: ",encrypted);
 const decrypted = AES_Decrypt(encrypted,key);
-console.log(' DONE :',decrypted);
+console.log('Decrypted Object :',decrypted);
