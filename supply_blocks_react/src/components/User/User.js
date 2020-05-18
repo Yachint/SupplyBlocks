@@ -3,7 +3,7 @@ import UserPageSideMenu from './Fixed/UserPageSideMenu';
 import { updateContract, deleteContract } from '../../actions';
 import { connect } from 'react-redux';
 import Form from '../Reusable/Form';
-import { notification, Button, Spin, PageHeader } from 'antd';
+import { notification, Button, Spin, PageHeader, Divider } from 'antd';
 import { reset } from '../../actions/stepActions';
 import ContractUpdateSteps from './Fixed/ContractUpdateSteps';
 import history from '../../history';
@@ -78,7 +78,8 @@ const User = (props) => {
                 spinning={isStarted}
                 >
                 <h2>Edit Details: </h2>
-                <br/>
+                
+                <Divider />
                 <Form  onSubmit={onSubmit}  initialValues={editableObj} />
                 </Spin>
 
@@ -90,7 +91,8 @@ const User = (props) => {
                     style={{marginTop: '50px'}}>
                     {isDeleting? <div></div> : <React.Fragment>
                             <h2>Delete Warehouse-Contract: </h2>
-                            <br/>
+                            
+                            <Divider />
                             <h3>Delete Account? This action cannot be reversed.</h3>
                             <Button type="primary" danger onClick={() => { onDelete() }} >
                             Yes, Delete   
@@ -114,7 +116,7 @@ const User = (props) => {
                 <PageHeader
                 className="site-Inventory"
                 onBack={() => {history.push('/')}}
-                title="Inventory"
+                title="Account Details"
                 />
                 <UserPageSideMenu onMenuClick={onMenuClick}/>
             </div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Form, Popconfirm, Button, Space } from 'antd';
+import { Table, Form, Popconfirm, Button, Space, Divider } from 'antd';
 import SimpleColumns from './Fixed/Columns';
 // import FixedData from './Fixed/Data';
 import EditableCell from './Fixed/EditableCell';
@@ -163,7 +163,7 @@ const Inventory = (props) => {
     return(
         <Form form={form} component={false}>
         <h2>Inventory Management :</h2>
-        <br/>
+        <Divider />
         <Button
           onClick={handleAdd}
           type="primary"

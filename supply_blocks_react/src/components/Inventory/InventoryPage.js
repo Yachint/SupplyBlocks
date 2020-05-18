@@ -8,6 +8,8 @@ import InventoryLogs from './InventoryLogs';
 import history from '../../history';
 import InventorySteps from './Fixed/InventorySteps';
 import _ from 'lodash';
+import './InventoryPage.css';
+import InventorySideMenu from './Fixed/InventorySideMenu';
 import { 
     loadInventory,
     updateInventory,
@@ -25,6 +27,7 @@ const InventoryPage = (props) => {
         loadInventory,
         changedState } = props;
 
+    const [selectedView, setView] = useState('manage');
     const [submitLoader, setSubmitLoader] = useState({
         isLoading: false,
         loadingAddress: currentHash
@@ -55,6 +58,12 @@ const InventoryPage = (props) => {
         props.updateInventory(data);
     }
 
+    const onMenuClick = (view) => {
+        // console.log(view.key);
+        if(view.key === '1') setView('manage');
+        else if(view.key === '2') setView('view');
+    }
+
     const deleteData = (updates, deleteThese) => {
         props.deleteItems(updates,deleteThese);
     }
@@ -79,13 +88,9 @@ const InventoryPage = (props) => {
     
     const renderData = () => {
         if(mainContractAddress !== null){
-            return(<Spin spinning={!isLoaded} tip="Fetching your inventory details, Just a second...">
-                    <InventorySteps />
-                    <PageHeader
-                    className="site-Inventory"
-                    onBack={() => {history.push('/')}}
-                    title="Inventory"
-                    />
+            if(selectedView === 'manage'){
+                return(<Spin spinning={!isLoaded} tip="Fetching your inventory details, Just a second...">
+                
                     <Inventory 
                     reduxData={inventory}
                     reduxSetData={setData}
@@ -94,10 +99,15 @@ const InventoryPage = (props) => {
                     <Button type="primary" loading={submitLoader.isLoading} onClick={() => saveData()}>
                     Apply Changes
                     </Button>
-                    <br/><br/><br/>
-                    <InventoryLogs data={props.scabLedger}/>
-                
-            </Spin>);
+                 </Spin>);
+            }
+            else{
+                return(
+                    <Spin spinning={!isLoaded} tip="Fetching your inventory details, Just a second...">
+                        <InventoryLogs data={props.scabLedger}/>
+                    </Spin>
+                );
+            }
         } else{
             return(
                 <Empty
@@ -122,7 +132,21 @@ const InventoryPage = (props) => {
     }
 
     return(
-        renderData()
+        <div className="space-align-container">
+            <InventorySteps />
+            <div className="space-align-block">
+                <PageHeader
+                className="site-Inventory"
+                onBack={() => {history.push('/')}}
+                title="Inventory"
+                />
+                <InventorySideMenu onMenuClick={onMenuClick}/>
+            </div>
+            <div className="space-align-side">
+                {renderData()}
+            </div>
+        </div>
+        // renderData()
     );
     
     

@@ -1,6 +1,6 @@
 import React from 'react';
 // import data from './Fixed/Data';
-import { Collapse, Table, Empty } from 'antd';
+import { Collapse, Table, Empty, Divider } from 'antd';
 const { Panel } = Collapse;
 
 
@@ -94,7 +94,7 @@ const InventoryLogs = (props) => {
     return(
         <React.Fragment>
         <h2>Inventory Logs :</h2>
-        <br/>
+        <Divider />
         {data.length === 0 ? <Empty
             image="https://gw.alipayobjects.com/zos/antfincdn/ZHrcdLPrvN/empty.svg"
             imageStyle={{
