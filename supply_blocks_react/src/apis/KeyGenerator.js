@@ -1,12 +1,19 @@
-const NodeRSA = require('node-rsa');
+import NodeRSA from 'node-rsa';
 
-const KeyGenerator = () => {
-    const key = new NodeRSA({b: 512},{format: 'string'},{browser: 'true'});
-    return {
-        privKey: key.exportKey(['private']),
-        pubKey: key.exportKey(['public'])
+var generateKeys = () => { 
+    return new Promise((resolve, reject) => {
+    try{
+        const key = new NodeRSA({b: 1400},{format: 'string'},{browser: 'true'});
+        const keys ={
+            privKey: key.exportKey(['private']),
+            pubKey: key.exportKey(['public'])
+        }
+        resolve(keys);
+    }catch(err){
+        reject(err);
     }
+});
+
 }
 
-
-module.exports = KeyGenerator;
+export default generateKeys;

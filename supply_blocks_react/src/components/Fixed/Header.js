@@ -41,6 +41,7 @@ const HeaderComp = (props) => {
         }else{
             props.signIn(accounts[0]);
             messageOnLogin();
+            setLoading(false);
         }
     }
 

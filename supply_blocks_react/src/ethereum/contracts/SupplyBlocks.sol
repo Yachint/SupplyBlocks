@@ -205,12 +205,12 @@ contract Warehouse {
     }
     
     function checkBalance() public view returns(uint){
-        require(msg.sender==manager);
         return address(this).balance;
     }
     
-    function transferMoney(address Bank, uint amount, bytes32 secret) public {
+    function transferMoney(address Bank, uint amount, bytes32 secret, string ipfs) public {
         require(secretKey==secret && address(this).balance >= amount);
+        IpfsHash = ipfs;
         Bank.transfer(amount);
     }
     
@@ -223,26 +223,20 @@ contract Warehouse {
 
 contract PaymentsBank{
     
-    mapping(address => string) paymentHistory;
     
-    function initiateTransaction(address buyerCon, address sellerCon, uint _amount, bytes32 secret) public {
+    function initiateTransaction(address buyerCon, address sellerCon, uint _amount, bytes32 secret, string ipfs) public {
         
         Warehouse insatnceBuyer = Warehouse(buyerCon);
-        insatnceBuyer.transferMoney(this, _amount, secret);
+        insatnceBuyer.transferMoney(this, _amount, secret, ipfs);
         sellerCon.transfer(address(this).balance);
         //sellerCon.transfer(msg.value);
 
     }
     
-    function getUserHistory(address user) public view returns (string){
-        return paymentHistory[user];
-    }
     
-    function setUserHistory(address user, string history) public {
-        paymentHistory[user] = history;
-    }
-    
-    function transferFunds(address WareCon) public payable {
+    function transferFunds(address WareCon, string ipfs) public payable {
+        Warehouse w = Warehouse(WareCon);
+        w.setIpfsHash(ipfs);
         WareCon.transfer(address(this).balance);
     }
     

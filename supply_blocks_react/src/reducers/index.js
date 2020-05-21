@@ -4,11 +4,13 @@ import metaMaskReducer from './metaMaskReducer';
 import contractReducer from './contractReducer';
 import inventoryReducer from './inventoryReducer';
 import stepsReducer from './stepsReducer';
+import transactionReducer from './transactionReducer';
 
 export default combineReducers({
     form: formReducer,
     auth: metaMaskReducer,
     contract: contractReducer,
     inventoryStore: inventoryReducer,
-    steps: stepsReducer
+    steps: stepsReducer,
+    wallet: transactionReducer
 });

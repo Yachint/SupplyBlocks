@@ -8,6 +8,8 @@ import AES_Encrypt from '../apis/AES_Encrypt';
 import AES_Decrypt from '../apis/AES_Decrypt';
 import rp from 'request-promise';
 import KeyGenerator from '../apis/KeyGenerator';
+import axios from 'axios';
+import web3 from '../ethereum/web3';
 import _ from 'lodash';
 
 export const signIn = (userAdd) => {
@@ -21,6 +23,9 @@ export const signIn = (userAdd) => {
 
 export const signOut = () => {
     return async (dispatch) => {
+        dispatch({
+            type: 'UNLOAD_WALLET'
+        })
         dispatch({
             type: 'RESET'
         });
@@ -42,12 +47,25 @@ export const loadContract = (conAddress) => {
             mainContractAddress: await userWarehouse.methods.mainConAdd().call()
         }
 
+        const getBalance = await userWarehouse.methods.checkBalance().call()
+        console.log('getBalance :',getBalance);
+        const balance = parseFloat(web3.utils.fromWei(getBalance, 'ether'));
+        console.log('balance:',balance);
         const keyHash = await userWarehouse.methods.privKey().call();
         const key = await IPFS_Download(keyHash);
-        console.log(typeof(key));
+        //console.log(typeof(key));
         const IpfsObj = await IPFS_Download(contractDetails.IpfsHash);
-
+        // console.log(IpfsObj);
+        const stats = AES_Decrypt(IpfsObj.stats,key);
         const AdditionalInfo = AES_Decrypt(IpfsObj.AdditionalInfo, key);
+
+        dispatch({
+            type: 'LOAD_WALLET',
+            payload: {
+                balance: balance,
+                stats: stats
+            }
+        });
 
         dispatch({
             type: 'CONTRACT_LOAD',
@@ -90,6 +108,7 @@ export const updateContract = (formValues) => {
         const { userAddress } = getState().auth;
         const { contractAddress, contractDetails, AdditionalInfo } = getState().contract;
         const { inventory, scabLedger } = getState().inventoryStore;
+        const { stats } = getState().wallet;
 
         dispatch({
             type: 'START'
@@ -109,6 +128,8 @@ export const updateContract = (formValues) => {
             scabLedger: scabLedger
         };
 
+       
+
         const userWarehouse = Warehouse(contractAddress);
         const keyHash = await userWarehouse.methods.privKey().call();
         const key = await IPFS_Download(keyHash);
@@ -118,11 +139,13 @@ export const updateContract = (formValues) => {
         });
 
         const encryptedAddInfo = AES_Encrypt(NewAdditionalInfo,key);
-        const encryptedInvInfo = AES_Encrypt(data,key);            
+        const encryptedInvInfo = AES_Encrypt(data,key);    
+        const encryptedWalletInfo = AES_Encrypt(stats,key);        
 
         const batchIpfsObject = {
                 AdditionalInfo: encryptedAddInfo,
-                Inventory: encryptedInvInfo
+                Inventory: encryptedInvInfo,
+                stats: encryptedWalletInfo
         }
 
         dispatch({
@@ -179,7 +202,7 @@ export const initializeContract = (formValues) => {
             type: 'GEN'
         });
 
-        const keys = KeyGenerator();
+        const keys = await KeyGenerator();
 
         const {pubKey, privKey} = keys;
         console.log(pubKey);
@@ -198,6 +221,13 @@ export const initializeContract = (formValues) => {
             scabLedger: []
         };
 
+        const stats = {
+            txNumber: 0,
+            moneySpent: 0,
+            moneyEarned: 0,
+            bankHistory: []
+        };
+
         dispatch({
             type: 'ENC'
         });
@@ -205,6 +235,7 @@ export const initializeContract = (formValues) => {
         console.log("Encryption Start");
         const encryptedAddInfo = AES_Encrypt(AdditionalInfo,privKey);
         const encryptedInvInfo = AES_Encrypt(data,privKey);
+        const encryptedWalletInfo = AES_Encrypt(stats,privKey);    
         console.log("Encryption End");
 
         dispatch({
@@ -213,7 +244,8 @@ export const initializeContract = (formValues) => {
 
         const batchIpfsObject = {
             AdditionalInfo: encryptedAddInfo,
-            Inventory: encryptedInvInfo
+            Inventory: encryptedInvInfo,
+            stats: encryptedWalletInfo
         }
 
         console.log("IPFS Upload Start");
@@ -231,9 +263,28 @@ export const initializeContract = (formValues) => {
             privHash
         ).send({ from: userAddress });
         
+        await new Promise(resolve => setTimeout(resolve, 3000));
         const address = await SupplyBlocks.methods.getContractAddress(userAddress).call();
         
         console.log("New Contract Address :",address);
+        const postBody = {
+            typeOfStore: "seller",
+            changedState: {
+                smartContractAdd: address,
+                name: formValues.orgName,
+                description: {
+                    additionalInfo: formValues.description
+                },
+                sellerSince: ''+(new Date()),
+                pubKey: pubKey
+
+                
+            }
+        }
+        axios.post('http://scab-blockchain.herokuapp.com/transaction/store/broadcast',postBody).then(async () => {
+            const response = await ScabApi.get('/mine');
+            console.log(response.data['block']);
+        })
         
         const userWarehouse = Warehouse(address);
         // await userWarehouse.methods.setInventoryHash(invHash).send({
@@ -263,6 +314,7 @@ export const initializeContract = (formValues) => {
         // history.push('/');
     }
 }
+
 
 export const loadInventory = () => {
     return async (dispatch, getState) => {
@@ -325,6 +377,7 @@ export const initiateInventorySave = () => {
         const { inventory, scabLedger, changedState } = getState().inventoryStore;
         const { userAddress } = getState().auth;
         const { contractAddress, AdditionalInfo } = getState().contract;
+        const { stats } = getState().wallet;
 
         const iterateState = _.values(changedState);
         const requestPromises = [];
@@ -360,11 +413,13 @@ export const initiateInventorySave = () => {
             const key = await IPFS_Download(keyHash);
 
             const encryptedAddInfo = AES_Encrypt(AdditionalInfo,key);
-            const encryptedInvInfo = AES_Encrypt(data,key);            
+            const encryptedInvInfo = AES_Encrypt(data,key); 
+            const encryptedWalletInfo = AES_Encrypt(stats,key);           
             dispatch({type: 'UPLOAD'});
             const batchIpfsObject = {
                 AdditionalInfo: encryptedAddInfo,
-                Inventory: encryptedInvInfo
+                Inventory: encryptedInvInfo,
+                stats: encryptedWalletInfo
             }
             
             dispatch({type: 'CREATE'});
