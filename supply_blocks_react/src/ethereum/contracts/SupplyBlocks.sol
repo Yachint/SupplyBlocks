@@ -65,10 +65,9 @@ contract Warehouse {
         secretKey = keccak256(abi.encode(_orgName, _manager, _description, _mainConAdd));
     }
     
-    function updateDetails(string desc, string name, string hash) public{
+    function updateDetails(string desc, string name) public{
         orgName = name;
         description = desc;
-        IpfsHash = hash;
     }
     
     //GETTERS AND SETTERS FUNCTIONS START--------------------------------
@@ -208,9 +207,8 @@ contract Warehouse {
         return address(this).balance;
     }
     
-    function transferMoney(address Bank, uint amount, bytes32 secret, string ipfs) public {
+    function transferMoney(address Bank, uint amount, bytes32 secret) public {
         require(secretKey==secret && address(this).balance >= amount);
-        IpfsHash = ipfs;
         Bank.transfer(amount);
     }
     
@@ -224,19 +222,17 @@ contract Warehouse {
 contract PaymentsBank{
     
     
-    function initiateTransaction(address buyerCon, address sellerCon, uint _amount, bytes32 secret, string ipfs) public {
+    function initiateTransaction(address buyerCon, address sellerCon, uint _amount, bytes32 secret) public {
         
         Warehouse insatnceBuyer = Warehouse(buyerCon);
-        insatnceBuyer.transferMoney(this, _amount, secret, ipfs);
+        insatnceBuyer.transferMoney(this, _amount, secret);
         sellerCon.transfer(address(this).balance);
         //sellerCon.transfer(msg.value);
 
     }
     
     
-    function transferFunds(address WareCon, string ipfs) public payable {
-        Warehouse w = Warehouse(WareCon);
-        w.setIpfsHash(ipfs);
+    function transferFunds(address WareCon) public payable {
         WareCon.transfer(address(this).balance);
     }
     

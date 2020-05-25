@@ -4,10 +4,11 @@ import IPFS_Upload from '../apis/IPFS_Upload';
 import IPFS_Download from '../apis/IPFS_Download';
 import history from '../history';
 import ScabApi from '../apis/ScabApi';
+import ScabJson from '../apis/ScabJson';
 import AES_Encrypt from '../apis/AES_Encrypt';
 import AES_Decrypt from '../apis/AES_Decrypt';
 import rp from 'request-promise';
-import KeyGenerator from '../apis/KeyGenerator';
+// import KeyGenerator from '../apis/KeyGenerator';
 import axios from 'axios';
 import web3 from '../ethereum/web3';
 import _ from 'lodash';
@@ -54,7 +55,9 @@ export const loadContract = (conAddress) => {
         const keyHash = await userWarehouse.methods.privKey().call();
         const key = await IPFS_Download(keyHash);
         //console.log(typeof(key));
-        const IpfsObj = await IPFS_Download(contractDetails.IpfsHash);
+        // const IpfsObj = await IPFS_Download(contractDetails.IpfsHash);
+        const IpfsArray = await ScabJson.get('/inventory?prodId='+contractDetails.IpfsHash);
+        const IpfsObj = IpfsArray.data[0];
         // console.log(IpfsObj);
         const stats = AES_Decrypt(IpfsObj.stats,key);
         const AdditionalInfo = AES_Decrypt(IpfsObj.AdditionalInfo, key);
@@ -124,11 +127,9 @@ export const updateContract = (formValues) => {
         }
 
         const data = {
-            inventory: inventory,
+            inventory: inventory,        
             scabLedger: scabLedger
         };
-
-       
 
         const userWarehouse = Warehouse(contractAddress);
         const keyHash = await userWarehouse.methods.privKey().call();
@@ -151,14 +152,21 @@ export const updateContract = (formValues) => {
         dispatch({
             type: 'UPLOAD'
         });
-            
-        const hash = await IPFS_Upload(batchIpfsObject);
+        
+        const scabObj = {
+            prodId: contractDetails.IpfsHash,
+            changedState: {...batchIpfsObject}
+        }
+        // const hash = await IPFS_Upload(batchIpfsObject);
+        await ScabApi.post('/transaction/inventory/broadcast',scabObj);
+        const response = await ScabApi.get('/mine');
+        console.log(response.data['block']);
 
         dispatch({
             type: 'CREATE'
         });
 
-        await userWarehouse.methods.updateDetails(formValues.description, formValues.orgName, hash).send({
+        await userWarehouse.methods.updateDetails(formValues.description, formValues.orgName).send({
             from: userAddress
         });
 
@@ -166,7 +174,7 @@ export const updateContract = (formValues) => {
         const updatedContractDetails = {
             orgName: formValues.orgName,
             description: formValues.description,
-            IpfsHash: hash,
+            IpfsHash: contractDetails.IpfsHash,
             managerAddress: contractDetails.managerAddress,
             mainContractAddress: contractDetails.mainContractAddress,
         }
@@ -202,9 +210,9 @@ export const initializeContract = (formValues) => {
             type: 'GEN'
         });
 
-        const keys = await KeyGenerator();
+        const keys = await ScabApi.get('/decrypt/generate');
 
-        const {pubKey, privKey} = keys;
+        const {pubKey, privKey} = keys.data;
         console.log(pubKey);
 
         const AdditionalInfo = {
@@ -248,8 +256,19 @@ export const initializeContract = (formValues) => {
             stats: encryptedWalletInfo
         }
 
+        const scabObj = {
+            changedState: {...batchIpfsObject}
+        }
+
         console.log("IPFS Upload Start");
-        const hash = await IPFS_Upload(batchIpfsObject);
+        // const hash = await IPFS_Upload(batchIpfsObject);
+        const dataResult = await ScabApi.post('/transaction/inventory/create',scabObj);
+        console.log('------->',dataResult);
+        const hash = dataResult.data.id;
+        console.log('HASH SCAB :', hash);
+        const response = await ScabApi.get('/mine');
+        console.log(response.data['block']);
+
         const privHash = await IPFS_Upload(privKey);
         console.log("IPFS Upload End");
 
@@ -323,7 +342,9 @@ export const loadInventory = () => {
         const keyHash = await userWarehouse.methods.privKey().call();
         const key = await IPFS_Download(keyHash);
 
-        const IpfsObj = await IPFS_Download(getState().contract.contractDetails.IpfsHash);
+        const IpfsArray = await ScabJson.get('/inventory?prodId='+getState().contract.contractDetails.IpfsHash);
+        const IpfsObj = IpfsArray.data[0];
+        //const IpfsObj = await IPFS_Download(getState().contract.contractDetails.IpfsHash);
         const Inventory = AES_Decrypt(IpfsObj.Inventory,key);
 
         dispatch({
@@ -375,13 +396,13 @@ export const initiateInventorySave = () => {
 
         dispatch({type: 'START'});
         const { inventory, scabLedger, changedState } = getState().inventoryStore;
-        const { userAddress } = getState().auth;
+        // const { userAddress } = getState().auth;
         const { contractAddress, AdditionalInfo } = getState().contract;
         const { stats } = getState().wallet;
 
         const iterateState = _.values(changedState);
         const requestPromises = [];
-        let response = {};
+        // let response = {};
         dispatch({type: 'GEN'});
         iterateState.forEach((item) => {
             const requestOptions = {
@@ -400,7 +421,7 @@ export const initiateInventorySave = () => {
         Promise.all(requestPromises).then(async () => {
             
             console.log("All transactions posted to SCAB.");
-            response = await ScabApi.get('/mine');
+            const response = await ScabApi.get('/mine');
             console.log(response.data['block']);
 
             const data = {
@@ -424,17 +445,28 @@ export const initiateInventorySave = () => {
             
             dispatch({type: 'CREATE'});
 
-            const hash = await IPFS_Upload(batchIpfsObject);
+            const scabObj = {
+                prodId: getState().contract.contractDetails.IpfsHash,
+                changedState: {...batchIpfsObject}
+            }
+    
+            console.log("IPFS Upload Start");
+            // const hash = await IPFS_Upload(batchIpfsObject);
+            await ScabApi.post('/transaction/inventory/broadcast',scabObj);
+            const responseSCAB = await ScabApi.get('/mine');
+            console.log(responseSCAB.data);
 
-            await userWarehouse.methods.setIpfsHash(hash).send({
-                from: userAddress
-            });
+            // const hash = await IPFS_Upload(batchIpfsObject);
+
+            // await userWarehouse.methods.setIpfsHash(hash).send({
+            //     from: userAddress
+            // });
             dispatch({type: 'FIN'});
     
             dispatch({
                 type: 'INV_UPDATE',
                 payload:{
-                    currentHash: hash,
+                    currentHash: getState().contract.contractDetails.IpfsHash,
                     ledger: response.data['block']
                 }
             });

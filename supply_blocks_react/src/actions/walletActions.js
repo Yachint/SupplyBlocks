@@ -5,6 +5,7 @@ import IPFS_Upload from '../apis/IPFS_Upload';
 import IPFS_Download from '../apis/IPFS_Download';
 import AES_Encrypt from '../apis/AES_Encrypt';
 import AsymmEncrypt from '../apis/AsymEncrypt';
+import ScabApi from '../apis/ScabApi';
 import _ from 'lodash';
 import web3 from '../ethereum/web3';
 import PUBLIC_KEY from '../apis/ServerPubKey';
@@ -44,7 +45,15 @@ export const transferOther = (formValues) => {
         console.log('uploading hash');
         const obj = await giveUploadableObject(AdditionalInfo, inventory, scabLedger, stats, newHistory, userWarehouse, formValues);
         console.log('obj recieved :',obj);
-        const hash = await IPFS_Upload(obj);
+        //const hash = await IPFS_Upload(obj);
+        const scabObj = {
+            prodId: getState().contract.contractDetails.IpfsHash,
+            changedState: {...obj}
+        }
+
+        await ScabApi.post('/transaction/inventory/broadcast',scabObj);
+        const response = await ScabApi.get('/mine');
+        console.log(response.data['block']);
 
         console.log('tx Starting');
         const Bank = PaymentsBank(bankAddress);
@@ -52,8 +61,7 @@ export const transferOther = (formValues) => {
             contractAddress, 
             formValues.seller,
             web3.utils.toWei(formValues.amount, 'ether'),
-            secret,
-            hash).send({
+            secret).send({
             from: userAddress
         });
         console.log('tx Complete');
@@ -61,8 +69,8 @@ export const transferOther = (formValues) => {
 
 
         console.log('got secret, posting to scab');
-        const response = await exportToSCAB(formValues.seller, formValues.amount);
-        console.log(response);
+        const responseSCAB = await exportToSCAB(formValues.seller, formValues.amount);
+        console.log(responseSCAB);
         dispatch({
             type: 'UPDATE_BALANCE',
             payload: {
@@ -100,11 +108,21 @@ export const transferSelf = (formValues) => {
         console.log('New History :',newHistory);
         const userWarehouse = Warehouse(contractAddress);
         const obj = await giveUploadableObject(AdditionalInfo, inventory, scabLedger, stats, newHistory, userWarehouse, formValues);
-        const hash = await IPFS_Upload(obj);
-        console.log('IPFS Hash :',hash);
+        
+        const scabObj = {
+            prodId: getState().contract.contractDetails.IpfsHash,
+            changedState: {...obj}
+        }
+
+        await ScabApi.post('/transaction/inventory/broadcast',scabObj);
+        const response = await ScabApi.get('/mine');
+        console.log(response.data['block']);
+        
+        // const hash = await IPFS_Upload(obj);
+        console.log('Scab done ');
 
         console.log('tx Starting');
-        await Bank.methods.transferFunds(contractAddress, hash).send({
+        await Bank.methods.transferFunds(contractAddress).send({
             value: web3.utils.toWei(formValues.amount, 'ether'),
             from: userAddress
         });
@@ -130,7 +148,6 @@ export const transferSelf = (formValues) => {
 export const fetchUpdatesSCAB = () => {
     return async (dispatch, getState) => {
         dispatch({ type: 'START_TRANSACTION'});
-        const { userAddress } = getState().auth;
         const { contractAddress, AdditionalInfo } = getState().contract;
         const { stats } = getState().wallet; 
         const { inventory, scabLedger } = getState().inventoryStore;
@@ -139,7 +156,8 @@ export const fetchUpdatesSCAB = () => {
         //const key = await IPFS_Download(keyHash);
         //console.log('got Priv key');
         const response = await axios.get('https://json-server-scab.herokuapp.com/users?smartContractAdd='+contractAddress);
-        console.log('No. of updates :',response.data[0].updateHash.length);
+        console.log(response);
+        console.log('No. of updates :',response.data.length);
 
         
 
@@ -179,14 +197,25 @@ export const fetchUpdatesSCAB = () => {
                     console.log('IPFS UPLOAD START');
                     const userWarehouse = Warehouse(contractAddress);
                     const obj = await giveWalletUpdateObject(AdditionalInfo,inventory,scabLedger,stats,updateStash,userWarehouse);
-                    const hash = await IPFS_Upload(obj);
-                    console.log('IPFS Hash :',hash);
+                    
+                    const scabObj = {
+                        prodId: getState().contract.contractDetails.IpfsHash,
+                        changedState: {...obj}
+                    }
+            
+                    await ScabApi.post('/transaction/inventory/broadcast',scabObj);
+                    const response = await ScabApi.get('/mine');
+                    console.log(response.data['block']);
+                    
+                    
+                    // const hash = await IPFS_Upload(obj);
+                    // console.log('IPFS Hash :',hash);
 
                     console.log('IPFS UPLOAD END');
 
-                    await userWarehouse.methods.setIpfsHash(hash).send({
-                        from: userAddress
-                    });
+                    // await userWarehouse.methods.setIpfsHash(hash).send({
+                    //     from: userAddress
+                    // });
 
                     let moneyEarned = 0;
                     updateStash.forEach(item => {
@@ -225,6 +254,10 @@ export const fetchUpdatesSCAB = () => {
             })
         
             
+        } else {
+
+            dispatch({ type: 'COMPLETE_TRANSACTION'});
+            dispatch({ type: 'SWITCH_ALL_FALSE'});
         }
 
         
