@@ -155,7 +155,7 @@ export const fetchUpdatesSCAB = () => {
         const keyHash = await userWarehouse.methods.privKey().call();
         //const key = await IPFS_Download(keyHash);
         //console.log('got Priv key');
-        const response = await axios.get('https://json-server-scab.herokuapp.com/users?smartContractAdd='+contractAddress);
+        const response = await axios.get('https://jsonscab.el.r.appspot.com/users?smartContractAdd='+contractAddress);
         console.log(response);
         console.log('No. of updates :',response.data.length);
 
@@ -174,7 +174,7 @@ export const fetchUpdatesSCAB = () => {
                 data.forEach(p => {
                     console.log('Creating async decryption block');
                     const requestOptions = {
-                        uri: 'https://scab-blockchain.herokuapp.com/decrypt',
+                        uri: 'https://scab-278321.el.r.appspot.com/decrypt',
                         method: 'POST',
                         body: {
                             enc: p,
@@ -229,8 +229,8 @@ export const fetchUpdatesSCAB = () => {
                             delete: "true"
                         }
                     }
-                    axios.post('https://scab-blockchain.herokuapp.com/transaction/store/broadcast',deleteUpdates).then(() => {
-                        axios.get('http://scab-blockchain.herokuapp.com/mine');
+                    axios.post('https://scab-278321.el.r.appspot.com/transaction/store/broadcast',deleteUpdates).then(() => {
+                        ScabApi.get('/mine');
                     });
 
                     dispatch({
@@ -363,8 +363,8 @@ const exportToSCAB = async (contractAddress, amount) => {
         }
     };
     console.log('posting tx to scab');
-    await axios.post('http://scab-blockchain.herokuapp.com/transaction/store/broadcast',templatePost);
+    await axios.post('https://scab-278321.el.r.appspot.com/transaction/store/broadcast',templatePost);
     console.log('mining tx');
-    const response = await axios.get('http://scab-blockchain.herokuapp.com/mine');
+    const response = await ScabApi.get('/mine');
     return response.data;
 }

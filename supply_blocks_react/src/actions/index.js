@@ -282,7 +282,7 @@ export const initializeContract = (formValues) => {
             privHash
         ).send({ from: userAddress });
         
-        await new Promise(resolve => setTimeout(resolve, 3000));
+        await new Promise(resolve => setTimeout(resolve, 4000));
         const address = await SupplyBlocks.methods.getContractAddress(userAddress).call();
         
         console.log("New Contract Address :",address);
@@ -300,7 +300,7 @@ export const initializeContract = (formValues) => {
                 
             }
         }
-        axios.post('http://scab-blockchain.herokuapp.com/transaction/store/broadcast',postBody).then(async () => {
+        axios.post('https://scab-278321.el.r.appspot.com/transaction/store/broadcast',postBody).then(async () => {
             const response = await ScabApi.get('/mine');
             console.log(response.data['block']);
         })
@@ -406,7 +406,7 @@ export const initiateInventorySave = () => {
         dispatch({type: 'GEN'});
         iterateState.forEach((item) => {
             const requestOptions = {
-                uri: "http://scab-blockchain.herokuapp.com/transaction/store/broadcast",
+                uri: "https://scab-278321.el.r.appspot.com/transaction/store/broadcast",
                 method: 'POST',
                 body: {
                     typeOfStore: "item",

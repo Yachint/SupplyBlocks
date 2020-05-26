@@ -1,5 +1,5 @@
 import axios from 'axios';
 
 export default axios.create({
-    baseURL: 'http://scab-blockchain.herokuapp.com'
+    baseURL: 'https://scab-278321.el.r.appspot.com'
 });
