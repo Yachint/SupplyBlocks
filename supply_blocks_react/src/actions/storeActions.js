@@ -12,7 +12,7 @@ export const fetchAllItems = () => {
 
 export const fetchItems = (id) => {
     return async (dispatch) => {
-        const response  = await ScabJson.get('/items'+id);
+        const response  = await ScabJson.get(`/items/${id}`);
         dispatch({
             type: 'FETCH_ITEM',
             payload: response.data

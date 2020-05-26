@@ -16,7 +16,7 @@ import DashBoard from './User/DashBoard';
 import CreateContract from './User/CreateContract';
 import ScabMainPage from './ScabStore/mainPage';
 import PaymentsBank from './PaymentsBank/BankMain';
-
+import detailsPage from './ScabStore/detailsPage';
 class App extends React.Component {
 
     getRoutes = () => {
@@ -30,6 +30,7 @@ class App extends React.Component {
                     <Route path="/User/NewContract" exact component = {CreateContract} />
                     <Route path="/Store" exact component={ScabMainPage} />
                     <Route path="/PaymentsBank" exact component={PaymentsBank} />
+                    <Route path="/DetailsPage/:id" exact component={detailsPage} />
                     <Redirect to="/" />
                 </Switch>
             );
