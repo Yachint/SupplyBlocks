@@ -5,6 +5,7 @@ import SupplyBlocks from '../../ethereum/SupplyBlocks';
 import { Empty, Button, Descriptions, Badge } from 'antd';
 import { Link } from 'react-router-dom';
 import { Spin } from 'antd';
+import BalanceStatistics from './Fixed/BalanceStatistics';
 import HomePageNonLogin from './HomepageNonLogin';
 
 const DashBoard = (props) =>{
@@ -70,30 +71,34 @@ const DashBoard = (props) =>{
         else{
             const { contractAddress, contractDetails, AdditionalInfo } = props;
             return (
-                <Descriptions title="Contract Details" bordered>
-                    <Descriptions.Item label="Organization Name">{contractDetails.orgName}</Descriptions.Item>
-                    <Descriptions.Item label="Organization Address" span={2} >{contractAddress}</Descriptions.Item>
-                    <Descriptions.Item label="Manager Address">{contractDetails.managerAddress}</Descriptions.Item>
-                    <Descriptions.Item label="Main Contract Address" span={2}>
-                    {contractDetails.mainContractAddress}
-                    </Descriptions.Item>
-                    <Descriptions.Item label="Status" >
-                    <Badge status="processing" text="Online" />
-                    </Descriptions.Item>
-                    <Descriptions.Item label="Organization Description" span={2}>{contractDetails.description}</Descriptions.Item>
-                    <Descriptions.Item label="Product Categories">{renderCategories()}</Descriptions.Item>
-                    <Descriptions.Item label="Config Info" span={2}>
-                    Name: {AdditionalInfo.name}
-                    <br />
-                    Designation: {AdditionalInfo.designation}
-                    <br />
-                    Company Address: {AdditionalInfo.companyAddress}
-                    <br />
-                    Warehouse Address: {AdditionalInfo.warehouseAddress}
-                    <br />
-                    </Descriptions.Item>
-                    <Descriptions.Item label="Organization Public Key" span={3}>{AdditionalInfo.pubKey}</Descriptions.Item>
-                </Descriptions>
+                <React.Fragment>
+                    <Descriptions title="Contract Details" bordered>
+                        <Descriptions.Item label="Organization Name">{contractDetails.orgName}</Descriptions.Item>
+                        <Descriptions.Item label="Organization Address" span={2} >{contractAddress}</Descriptions.Item>
+                        <Descriptions.Item label="Manager Address">{contractDetails.managerAddress}</Descriptions.Item>
+                        <Descriptions.Item label="Main Contract Address" span={2}>
+                        {contractDetails.mainContractAddress}
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Status" >
+                        <Badge status="processing" text="Online" />
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Organization Description" span={2}>{contractDetails.description}</Descriptions.Item>
+                        <Descriptions.Item label="Product Categories">{renderCategories()}</Descriptions.Item>
+                        <Descriptions.Item label="Config Info" span={2}>
+                        Name: {AdditionalInfo.name}
+                        <br />
+                        Designation: {AdditionalInfo.designation}
+                        <br />
+                        Company Address: {AdditionalInfo.companyAddress}
+                        <br />
+                        Warehouse Address: {AdditionalInfo.warehouseAddress}
+                        <br />
+                        </Descriptions.Item>
+                        <Descriptions.Item label="Organization Public Key" span={3}>{AdditionalInfo.pubKey}</Descriptions.Item>
+                    </Descriptions>
+                    <br/>
+                    <BalanceStatistics balance={props.balance} stats={props.stats}/>
+                </React.Fragment>
             );
         }
     }
@@ -126,7 +131,9 @@ const mapStateToProps = (state) => {
         isSignedIn: state.auth.isSignedIn,
         address: state.auth.userAddress,
         contractDetails: state.contract.contractDetails,
-        AdditionalInfo: state.contract.AdditionalInfo
+        AdditionalInfo: state.contract.AdditionalInfo,
+        balance: state.wallet.balance,
+        stats: state.wallet.stats
      }
 }
 

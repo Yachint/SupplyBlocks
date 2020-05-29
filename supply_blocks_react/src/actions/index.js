@@ -300,7 +300,7 @@ export const initializeContract = (formValues) => {
                 
             }
         }
-        axios.post('https://scab-278321.el.r.appspot.com/transaction/store/broadcast',postBody).then(async () => {
+        axios.post('https://scab-blockchain.herokuapp.com/transaction/store/broadcast',postBody).then(async () => {
             const response = await ScabApi.get('/mine');
             console.log(response.data['block']);
         })
@@ -406,7 +406,7 @@ export const initiateInventorySave = () => {
         dispatch({type: 'GEN'});
         iterateState.forEach((item) => {
             const requestOptions = {
-                uri: "https://scab-278321.el.r.appspot.com/transaction/store/broadcast",
+                uri: "https://scab-blockchain.herokuapp.com/transaction/store/broadcast",
                 method: 'POST',
                 body: {
                     typeOfStore: "item",

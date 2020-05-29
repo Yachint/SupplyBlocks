@@ -1,5 +1,5 @@
 import React from "react";
-import { Statistic, List, Typography } from "antd";
+import { Typography, InputNumber } from "antd";
 import { connect } from "react-redux";
 import { fetchAllItems } from "../../actions/storeActions";
 import { Link } from "react-router-dom";
@@ -9,9 +9,16 @@ class MainPage extends React.Component {
   componentDidMount() {
     this.props.fetchAllItems();
   }
+
+  getNumberOfItems = (value) => {
+    console.log('changed :', value);
+  }
+
   renderAdmin(stream) {
     return (
       <div className="right floated content">
+        <InputNumber min={1} max={99} defaultValue={0} onChange={this.getNumberOfItems} />
+        <br/>
         <Link to={`/DetailsPage/${stream.id}`} className="ui button primary">
           Details
         </Link>

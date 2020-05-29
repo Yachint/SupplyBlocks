@@ -20,7 +20,7 @@ export default (state = INITIAL_STATE, action) => {
             }
         case 'UNLOAD_WALLET':
             return {...state,
-                balance: null,
+                balance: 0,
                 stats:{
                     txNumber: 0,
                     moneySpent: 0,

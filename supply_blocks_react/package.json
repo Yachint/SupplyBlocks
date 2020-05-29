@@ -22,7 +22,7 @@
     "redux-form": "^8.3.1",
     "redux-thunk": "^2.3.0",
     "request-promise": "^4.2.5",
-    "solc": "^0.6.8",
+    "solc": "^0.4.26",
     "truffle-hdwallet-provider": "0.0.3",
     "web3": "^1.2.7"
   },

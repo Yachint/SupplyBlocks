@@ -1,7 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import { fetchItems } from "../../actions/storeActions";
-import { Statistic, List, Typography } from "antd";
+import { List, Typography } from "antd";
 class DetailsPage extends React.Component {
   componentDidMount() {
     this.props.fetchItems(this.props.match.params.id);
