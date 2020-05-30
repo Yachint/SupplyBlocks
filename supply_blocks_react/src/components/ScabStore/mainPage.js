@@ -4,22 +4,23 @@ import { connect } from "react-redux";
 import { fetchAllItems } from "../../actions/storeActions";
 import { Link } from "react-router-dom";
 const { Title } = Typography;
-
+var c=0;
 class MainPage extends React.Component {
   componentDidMount() {
     this.props.fetchAllItems();
   }
 
   getNumberOfItems = (value) => {
-    console.log('changed :', value);
+    c=value;
   }
 
   renderAdmin(stream) {
     return (
       <div className="right floated content">
+        Select Quantity: 
         <InputNumber min={1} max={99} defaultValue={0} onChange={this.getNumberOfItems} />
         <br/>
-        <Link to={`/DetailsPage/${stream.id}`} className="ui button primary">
+        <Link to={`/DetailsPage/${stream.id}/${c}`} className="ui button primary">
           Details
         </Link>
       </div>

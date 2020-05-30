@@ -30,7 +30,7 @@ class App extends React.Component {
                     <Route path="/User/NewContract" exact component = {CreateContract} />
                     <Route path="/Store" exact component={ScabMainPage} />
                     <Route path="/PaymentsBank" exact component={PaymentsBank} />
-                    <Route path="/DetailsPage/:id" exact component={detailsPage} />
+                    <Route path="/DetailsPage/:id/:count" exact component={detailsPage} />
                     <Redirect to="/" />
                 </Switch>
             );

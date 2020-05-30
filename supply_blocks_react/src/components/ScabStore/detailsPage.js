@@ -2,9 +2,18 @@ import React from "react";
 import { connect } from "react-redux";
 import { fetchItems } from "../../actions/storeActions";
 import { List, Typography } from "antd";
+import { Link } from "react-router-dom";
 class DetailsPage extends React.Component {
   componentDidMount() {
     this.props.fetchItems(this.props.match.params.id);
+  }
+  correctPrice(price){
+    if(!isNaN(price)){
+      return price;
+    }
+    else{
+       return(String(price).substring(1));
+    }
   }
   renderData(){
     return [
@@ -12,7 +21,8 @@ class DetailsPage extends React.Component {
         `Product Name: ${this.props.stores.name}`,
         `Description: ${this.props.stores.description}`,
         `Price: ${this.props.stores.price}`,
-        `Quantity Available: ${this.props.stores.quantity}`,
+        `Quantity Selected: ${this.props.match.params.count}`,
+        `Final Price:  ${parseFloat(this.correctPrice(this.props.stores.price))*parseFloat(this.props.match.params.count)}`
       ];
   }
   render() {
@@ -27,6 +37,9 @@ class DetailsPage extends React.Component {
           footer={
             <div>
               Checkout to see your buying options...
+              <div className="right floated content"> <Link to={`/`} className="ui button primary">
+          Checkout
+        </Link></div>
             </div>
           }
           bordered
