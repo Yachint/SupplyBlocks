@@ -58,7 +58,7 @@ export const loadContract = (conAddress) => {
         // const IpfsObj = await IPFS_Download(contractDetails.IpfsHash);
         const IpfsArray = await ScabJson.get('/inventory?prodId='+contractDetails.IpfsHash);
         const IpfsObj = IpfsArray.data[0];
-        // console.log(IpfsObj);
+        console.log(IpfsObj);
         const stats = AES_Decrypt(IpfsObj.stats,key);
         const AdditionalInfo = AES_Decrypt(IpfsObj.AdditionalInfo, key);
 

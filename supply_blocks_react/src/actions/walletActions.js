@@ -1,7 +1,7 @@
 import PaymentsBank from '../ethereum/PaymentsBank';
 import SupplyBlocks from '../ethereum/SupplyBlocks';
 import Warehouse from '../ethereum/Warehouse';
-import IPFS_Upload from '../apis/IPFS_Upload';
+// import IPFS_Upload from '../apis/IPFS_Upload';
 import IPFS_Download from '../apis/IPFS_Download';
 import AES_Encrypt from '../apis/AES_Encrypt';
 import AsymmEncrypt from '../apis/AsymEncrypt';
@@ -163,15 +163,15 @@ export const fetchUpdatesSCAB = () => {
 
         if(response.data.length !== 0){
             const updatesArray = response.data[0].updateHash;
-            const toUpdate = [];
-            updatesArray.forEach(item => {
-                toUpdate.push(rp(IPFS_Download(item)))
-            })
+            // const toUpdate = [];
+            // updatesArray.forEach(item => {
+            //     toUpdate.push(rp(IPFS_Download(item)))
+            // })
             console.log('Fetching updates');
-            Promise.all(toUpdate).then(data => {
-                console.log(data);
+            
+                console.log(updatesArray);
                 const AsymmPromises = [];
-                data.forEach(p => {
+                updatesArray.forEach(p => {
                     console.log('Creating async decryption block');
                     const requestOptions = {
                         uri: 'https://scab-blockchain.herokuapp.com/decrypt',
@@ -249,10 +249,7 @@ export const fetchUpdatesSCAB = () => {
                 }).catch((err) => {
                     console.log(err);
                 })
-            }).catch((err) => {
-                console.log(err);
-            })
-        
+            
             
         } else {
 
@@ -352,14 +349,14 @@ const exportToSCAB = async (contractAddress, amount, buyerAddress) => {
     console.log(toGiveHistory);
     console.log('encrypting scab info');
     const encryptedGive = await AsymmEncrypt(JSON.stringify(toGiveHistory),PUBLIC_KEY);
-    console.log('uploading scab data to ipfs...');
-    const objHash = await IPFS_Upload(encryptedGive);
+    // console.log('uploading scab data to ipfs...');
+    // const objHash = await IPFS_Upload(encryptedGive);
 
     const templatePost = {
         typeOfStore: "user",
         changedState: {
             smartContractAdd: contractAddress,
-            info: objHash
+            info: encryptedGive
         }
     };
     console.log('posting tx to scab');
