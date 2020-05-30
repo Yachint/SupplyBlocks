@@ -401,6 +401,7 @@ export const initiateInventorySave = () => {
         const { stats } = getState().wallet;
 
         const iterateState = _.values(changedState);
+        iterateState.forEach(p => p.seller = contractAddress);
         const requestPromises = [];
         // let response = {};
         dispatch({type: 'GEN'});

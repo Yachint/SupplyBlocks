@@ -33,7 +33,7 @@ class DetailsPage extends React.Component {
       <div>
         <List
           size="large"
-          header={<div><Typography.Text mark strong>Item Details:</Typography.Text></div>}
+          header={<div><Typography.Text mark strong><h2>Item Details:</h2></Typography.Text></div>}
           footer={
             <div>
               Checkout to see your buying options...
