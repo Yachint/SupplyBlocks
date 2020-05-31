@@ -57,7 +57,8 @@ class MainPage extends React.Component {
 
 const mapStateToProps = (state) => {
   return {
-    stores: Object.values(state.store)
+    stores: Object.values(state.store),
+    
   };
 };
 
