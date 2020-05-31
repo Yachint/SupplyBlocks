@@ -10,6 +10,7 @@ import InventorySteps from './Fixed/InventorySteps';
 import _ from 'lodash';
 import './InventoryPage.css';
 import InventorySideMenu from './Fixed/InventorySideMenu';
+import { reset } from '../../actions/stepActions';
 import { 
     loadInventory,
     updateInventory,
@@ -25,7 +26,9 @@ const InventoryPage = (props) => {
         inventory, 
         mainContractAddress, 
         loadInventory,
-        changedState } = props;
+        changedState,
+        reset,
+        isFinished } = props;
 
     const [selectedView, setView] = useState('manage');
     const [submitLoader, setSubmitLoader] = useState({
@@ -34,9 +37,9 @@ const InventoryPage = (props) => {
     })
 
     useEffect(() => {
-        if(isLoaded === false && mainContractAddress !== null){
-            loadInventory();
-        }
+        // if(isLoaded === false && mainContractAddress !== null){
+        //     loadInventory();
+        // }
         if(currentHash !== submitLoader.loadingAddress 
             && submitLoader.isLoading === true && _.isEmpty(changedState)){
             setSubmitLoader({
@@ -45,6 +48,10 @@ const InventoryPage = (props) => {
             });
             openNotification();
         }
+        if(isFinished){
+            reset()
+        }
+        
         //console.log(isLoaded);
     },[isLoaded, 
         mainContractAddress, 
@@ -52,7 +59,9 @@ const InventoryPage = (props) => {
         currentHash, 
         submitLoader.loadingAddress, 
         submitLoader.isLoading,
-        changedState]);
+        changedState,
+        reset,
+        isFinished]);
 
     const setData = (data) => {
         props.updateInventory(data);
@@ -160,7 +169,8 @@ const mapStateToProps = (state) => {
         isSignedIn: state.auth.isSignedIn,
         mainContractAddress: state.contract.contractDetails.mainContractAddress,
         changedState: state.inventoryStore.changedState,
-        scabLedger: state.inventoryStore.scabLedger
+        scabLedger: state.inventoryStore.scabLedger,
+        isFinished: state.steps.isFinished
         
     }
 }
@@ -169,5 +179,6 @@ export default connect(mapStateToProps,{
     loadInventory: loadInventory,
     updateInventory: updateInventory,
     initiateInventorySave: initiateInventorySave,
-    deleteItems: deleteItems
+    deleteItems: deleteItems,
+    reset: reset
 })(InventoryPage);

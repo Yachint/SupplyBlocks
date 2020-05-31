@@ -6,6 +6,7 @@ import inventoryReducer from './inventoryReducer';
 import stepsReducer from './stepsReducer';
 import transactionReducer from './transactionReducer';
 import storeReducer from './storeReducer';
+import ordersReducer from './ordersReducer';
 
 export default combineReducers({
     form: formReducer,
@@ -14,5 +15,6 @@ export default combineReducers({
     inventoryStore: inventoryReducer,
     steps: stepsReducer,
     wallet: transactionReducer,
-    store: storeReducer
+    store: storeReducer,
+    orderStore: ordersReducer
 });

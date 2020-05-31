@@ -27,6 +27,7 @@ export const transferOther = (formValues) => {
         const { contractAddress, AdditionalInfo } = getState().contract;
         const { stats, balance } = getState().wallet; 
         const { inventory, scabLedger } = getState().inventoryStore;
+        const { orders, orderLedger } = getState().orderStore;
 
         const bankAddress = await SupplyBlocks.methods.PaymentsBankAddress().call();
 
@@ -43,7 +44,17 @@ export const transferOther = (formValues) => {
             action: 'pay'
         }
         console.log('uploading hash');
-        const obj = await giveUploadableObject(AdditionalInfo, inventory, scabLedger, stats, newHistory, userWarehouse, formValues);
+        const obj = await giveUploadableObject(
+            AdditionalInfo, 
+            inventory, 
+            scabLedger, 
+            stats, 
+            newHistory, 
+            userWarehouse, 
+            formValues,
+            orders,
+            orderLedger
+        );
         console.log('obj recieved :',obj);
         //const hash = await IPFS_Upload(obj);
         const scabObj = {
@@ -95,6 +106,7 @@ export const transferSelf = (formValues) => {
         const { contractAddress, AdditionalInfo } = getState().contract;
         const { stats, balance } = getState().wallet; 
         const { inventory, scabLedger } = getState().inventoryStore;
+        const { orders, orderLedger } = getState().orderStore;
 
         const bankAddress = await SupplyBlocks.methods.PaymentsBankAddress().call();
         const Bank = PaymentsBank(bankAddress);
@@ -107,7 +119,17 @@ export const transferSelf = (formValues) => {
         }
         console.log('New History :',newHistory);
         const userWarehouse = Warehouse(contractAddress);
-        const obj = await giveUploadableObject(AdditionalInfo, inventory, scabLedger, stats, newHistory, userWarehouse, formValues);
+        const obj = await giveUploadableObject(
+            AdditionalInfo, 
+            inventory, 
+            scabLedger, 
+            stats, 
+            newHistory, 
+            userWarehouse, 
+            formValues,
+            orders,
+            orderLedger
+        );
         
         const scabObj = {
             prodId: getState().contract.contractDetails.IpfsHash,
@@ -267,7 +289,16 @@ export const deleteUpdatesSCAB = () => {
     }
 }
 
-const giveWalletUpdateObject = async (AdditionalInfo, inventory, scabLedger, stats, updateStash, userWarehouse) => {
+const giveWalletUpdateObject = async (
+    AdditionalInfo, 
+    inventory, 
+    scabLedger, 
+    stats, 
+    updateStash, 
+    userWarehouse,
+    orders,
+    orderLedger) => {
+
     const keyHash = await userWarehouse.methods.privKey().call();
     const key = await IPFS_Download(keyHash);
 
@@ -282,6 +313,11 @@ const giveWalletUpdateObject = async (AdditionalInfo, inventory, scabLedger, sta
         bankHistory: _.concat(stats.bankHistory , updateStash)
     }
 
+    const mimicOrderStore = {
+        orders: orders,
+        orderLedger: orderLedger
+    }
+
     const data = {
         inventory: inventory,
         scabLedger: scabLedger
@@ -290,18 +326,29 @@ const giveWalletUpdateObject = async (AdditionalInfo, inventory, scabLedger, sta
     const encryptedAddInfo = AES_Encrypt(AdditionalInfo,key);
     const encryptedInvInfo = AES_Encrypt(data,key);
     const encryptedWalletInfo = AES_Encrypt(newStats,key);
+    const encryptedOrderInfo = AES_Encrypt(mimicOrderStore,key);   
 
     const batchIpfsObject = {
         AdditionalInfo: encryptedAddInfo,
         Inventory: encryptedInvInfo,
-        stats: encryptedWalletInfo
+        stats: encryptedWalletInfo,
+        Orders: encryptedOrderInfo
     }
     console.log('BATCH :',batchIpfsObject);
 
     return batchIpfsObject;
 }
 
-const giveUploadableObject = async (AdditionalInfo, inventory, scabLedger, stats, newHistory, userWarehouse, formValues) => {
+const giveUploadableObject = async (
+    AdditionalInfo, 
+    inventory, 
+    scabLedger, 
+    stats, 
+    newHistory, 
+    userWarehouse, 
+    formValues,
+    orders,
+    orderLedger) => {
         const keyHash = await userWarehouse.methods.privKey().call();
         const key = await IPFS_Download(keyHash);
 
@@ -325,14 +372,21 @@ const giveUploadableObject = async (AdditionalInfo, inventory, scabLedger, stats
             scabLedger: scabLedger
         };
 
+        const mimicOrderStore = {
+            orders: orders,
+            orderLedger: orderLedger
+        }
+
         const encryptedAddInfo = AES_Encrypt(AdditionalInfo,key);
         const encryptedInvInfo = AES_Encrypt(data,key);
         const encryptedWalletInfo = AES_Encrypt(newStats,key);
+        const encryptedOrderInfo = AES_Encrypt(mimicOrderStore,key); 
 
         const batchIpfsObject = {
             AdditionalInfo: encryptedAddInfo,
             Inventory: encryptedInvInfo,
-            stats: encryptedWalletInfo
+            stats: encryptedWalletInfo,
+            Orders: encryptedOrderInfo
         }
         console.log('BATCH :',batchIpfsObject);
 

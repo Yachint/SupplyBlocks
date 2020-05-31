@@ -28,6 +28,9 @@ export const signOut = () => {
             type: 'UNLOAD_WALLET'
         })
         dispatch({
+            type: 'UNLOAD_ORDERS'
+        })
+        dispatch({
             type: 'RESET'
         });
         dispatch({
@@ -61,6 +64,27 @@ export const loadContract = (conAddress) => {
         console.log(IpfsObj);
         const stats = AES_Decrypt(IpfsObj.stats,key);
         const AdditionalInfo = AES_Decrypt(IpfsObj.AdditionalInfo, key);
+        const Inventory = AES_Decrypt(IpfsObj.Inventory,key);
+        const Orders = AES_Decrypt(IpfsObj.Orders,key);
+        // console.log(Orders);
+
+
+        dispatch({
+            type: 'LOAD_ORDERS',
+            payload: {
+                orders: Orders.orders,
+                ledger: Orders.orderLedger
+            }
+        }); 
+
+        dispatch({
+            type: 'INV_LOAD',
+            payload: {
+                currentHash: contractDetails.IpfsHash,
+                inventory: Inventory.inventory,
+                scabLedger: Inventory.scabLedger
+            }
+        });
 
         dispatch({
             type: 'LOAD_WALLET',
@@ -111,6 +135,7 @@ export const updateContract = (formValues) => {
         const { userAddress } = getState().auth;
         const { contractAddress, contractDetails, AdditionalInfo } = getState().contract;
         const { inventory, scabLedger } = getState().inventoryStore;
+        const { orders, orderLedger } = getState().orderStore;
         const { stats } = getState().wallet;
 
         dispatch({
@@ -131,6 +156,11 @@ export const updateContract = (formValues) => {
             scabLedger: scabLedger
         };
 
+        const mimicOrderStore = {
+            orders: orders,
+            orderLedger: orderLedger
+        }
+
         const userWarehouse = Warehouse(contractAddress);
         const keyHash = await userWarehouse.methods.privKey().call();
         const key = await IPFS_Download(keyHash);
@@ -141,12 +171,14 @@ export const updateContract = (formValues) => {
 
         const encryptedAddInfo = AES_Encrypt(NewAdditionalInfo,key);
         const encryptedInvInfo = AES_Encrypt(data,key);    
-        const encryptedWalletInfo = AES_Encrypt(stats,key);        
+        const encryptedWalletInfo = AES_Encrypt(stats,key);
+        const encryptedOrderInfo = AES_Encrypt(mimicOrderStore,key);        
 
         const batchIpfsObject = {
                 AdditionalInfo: encryptedAddInfo,
                 Inventory: encryptedInvInfo,
-                stats: encryptedWalletInfo
+                stats: encryptedWalletInfo,
+                Orders: encryptedOrderInfo
         }
 
         dispatch({
@@ -229,6 +261,12 @@ export const initializeContract = (formValues) => {
             scabLedger: []
         };
 
+        const mimicOrderStore = {
+            orders: [],
+            orderLedger: []
+        }
+      
+
         const stats = {
             txNumber: 0,
             moneySpent: 0,
@@ -243,7 +281,8 @@ export const initializeContract = (formValues) => {
         console.log("Encryption Start");
         const encryptedAddInfo = AES_Encrypt(AdditionalInfo,privKey);
         const encryptedInvInfo = AES_Encrypt(data,privKey);
-        const encryptedWalletInfo = AES_Encrypt(stats,privKey);    
+        const encryptedWalletInfo = AES_Encrypt(stats,privKey);
+        const encryptedOrderInfo = AES_Encrypt(mimicOrderStore,privKey);  
         console.log("Encryption End");
 
         dispatch({
@@ -253,7 +292,8 @@ export const initializeContract = (formValues) => {
         const batchIpfsObject = {
             AdditionalInfo: encryptedAddInfo,
             Inventory: encryptedInvInfo,
-            stats: encryptedWalletInfo
+            stats: encryptedWalletInfo,
+            Orders: encryptedOrderInfo
         }
 
         const scabObj = {
@@ -282,8 +322,10 @@ export const initializeContract = (formValues) => {
             privHash
         ).send({ from: userAddress });
         
-        await new Promise(resolve => setTimeout(resolve, 4000));
-        const address = await SupplyBlocks.methods.getContractAddress(userAddress).call();
+        await new Promise(resolve => setTimeout(resolve, 500));
+        const address = await SupplyBlocks.methods.getContractAddress(userAddress).call({
+            from: userAddress
+        });
         
         console.log("New Contract Address :",address);
         const postBody = {
@@ -328,8 +370,26 @@ export const initializeContract = (formValues) => {
         });
 
         dispatch({
+            type: 'INV_LOAD',
+            payload: {
+                currentHash: hash,
+                inventory: [],
+                scabLedger: []
+            }
+        });
+
+        dispatch({
+            type: 'LOAD_ORDERS',
+            payload: {
+                orders: [],
+                ledger: []
+            }
+        });
+
+        dispatch({
             type: 'FIN'
         });
+
         // history.push('/');
     }
 }
@@ -399,7 +459,8 @@ export const initiateInventorySave = () => {
         // const { userAddress } = getState().auth;
         const { contractAddress, AdditionalInfo } = getState().contract;
         const { stats } = getState().wallet;
-
+        const { orders, orderLedger } = getState().orderStore;
+        
         const iterateState = _.values(changedState);
         iterateState.forEach(p => p.seller = contractAddress);
         const requestPromises = [];
@@ -429,6 +490,13 @@ export const initiateInventorySave = () => {
                 inventory: inventory,
                 scabLedger: _.concat(scabLedger, response.data['block'])
             };
+
+            const mimicOrderStore = {
+                orders: orders,
+                orderLedger: orderLedger
+            }
+            // console.log("MIMIC ORDERS :", mimicOrderStore);
+
             dispatch({type: 'ENC'});
             const userWarehouse = Warehouse(contractAddress);
             const keyHash = await userWarehouse.methods.privKey().call();
@@ -436,12 +504,15 @@ export const initiateInventorySave = () => {
 
             const encryptedAddInfo = AES_Encrypt(AdditionalInfo,key);
             const encryptedInvInfo = AES_Encrypt(data,key); 
-            const encryptedWalletInfo = AES_Encrypt(stats,key);           
+            const encryptedWalletInfo = AES_Encrypt(stats,key);
+            const encryptedOrderInfo = AES_Encrypt(mimicOrderStore,key); 
+
             dispatch({type: 'UPLOAD'});
             const batchIpfsObject = {
                 AdditionalInfo: encryptedAddInfo,
                 Inventory: encryptedInvInfo,
-                stats: encryptedWalletInfo
+                stats: encryptedWalletInfo,
+                Orders: encryptedOrderInfo
             }
             
             dispatch({type: 'CREATE'});
@@ -471,7 +542,7 @@ export const initiateInventorySave = () => {
                     ledger: response.data['block']
                 }
             });
-            dispatch({type: 'RESET'});
+            // dispatch({type: 'RESET'});
         });
         
     }
