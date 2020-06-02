@@ -3,7 +3,7 @@ import accountJSON from './build/SupplyBlocks.json';
 
 const instance = new web3.eth.Contract(
     JSON.parse(accountJSON.interface),
-    '0xc08e37Df77D58Cde752CF7C4174157a53C48FfeF'
+    '0xc6b036E007a2336eeffbf8158f665154e909a98D'
 );
 
 export default instance;

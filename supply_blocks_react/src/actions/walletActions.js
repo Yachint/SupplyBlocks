@@ -66,6 +66,7 @@ export const transferOther = (formValues) => {
         const response = await ScabApi.get('/mine');
         console.log(response.data['block']);
 
+        // console.log(contractAddress,' ',formValues.seller,' ',web3.utils.toWei(formValues.amount, 'ether'),' ',secret);
         console.log('tx Starting');
         const Bank = PaymentsBank(bankAddress);
         await Bank.methods.initiateTransaction(
@@ -173,6 +174,7 @@ export const fetchUpdatesSCAB = () => {
         const { contractAddress, AdditionalInfo } = getState().contract;
         const { stats } = getState().wallet; 
         const { inventory, scabLedger } = getState().inventoryStore;
+        const { orders, orderLedger } = getState().orderStore;
         const userWarehouse = Warehouse(contractAddress);
         const keyHash = await userWarehouse.methods.privKey().call();
         //const key = await IPFS_Download(keyHash);
@@ -218,7 +220,7 @@ export const fetchUpdatesSCAB = () => {
 
                     console.log('IPFS UPLOAD START');
                     const userWarehouse = Warehouse(contractAddress);
-                    const obj = await giveWalletUpdateObject(AdditionalInfo,inventory,scabLedger,stats,updateStash,userWarehouse);
+                    const obj = await giveWalletUpdateObject(AdditionalInfo,inventory,scabLedger,stats,updateStash,userWarehouse,orders,orderLedger);
                     
                     const scabObj = {
                         prodId: getState().contract.contractDetails.IpfsHash,

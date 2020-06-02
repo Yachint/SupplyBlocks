@@ -66,7 +66,7 @@ export const loadContract = (conAddress) => {
         const AdditionalInfo = AES_Decrypt(IpfsObj.AdditionalInfo, key);
         const Inventory = AES_Decrypt(IpfsObj.Inventory,key);
         const Orders = AES_Decrypt(IpfsObj.Orders,key);
-        // console.log(Orders);
+        console.log(Orders);
 
 
         dispatch({
@@ -322,10 +322,12 @@ export const initializeContract = (formValues) => {
             privHash
         ).send({ from: userAddress });
         
-        await new Promise(resolve => setTimeout(resolve, 500));
-        const address = await SupplyBlocks.methods.getContractAddress(userAddress).call({
-            from: userAddress
-        });
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        var address = await SupplyBlocks.methods.getContractAddress(userAddress).call();
+
+        if(address === '0x0000000000000000000000000000000000000000'){
+            address = await SupplyBlocks.methods.getRecentJoin().call();
+        }
         
         console.log("New Contract Address :",address);
         const postBody = {
@@ -359,6 +361,19 @@ export const initializeContract = (formValues) => {
             managerAddress: userAddress,
             mainContractAddress: await userWarehouse.methods.mainConAdd().call(),
         }
+
+        dispatch({
+            type: 'LOAD_WALLET',
+            payload: {
+                balance: 0,
+                stats:{
+                    txNumber: 0,
+                    moneySpent: 0,
+                    moneyEarned: 0,
+                    bankHistory: []
+                }
+            }
+        })
 
         dispatch({
             type: 'CONTRACT_LOAD',

@@ -1,0 +1,21 @@
+.space-align-container {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .space-align-block {
+    margin: 16px 8px;
+    /* border: 1px solid #40a9ff; */
+    padding: 20px;
+    flex: none;
+  }
+
+
+  .space-align-side {
+    margin-top: 35px;
+
+    /* border: 1px solid #40a9ff; */
+    padding: 20px;
+    flex: 1;
+  }

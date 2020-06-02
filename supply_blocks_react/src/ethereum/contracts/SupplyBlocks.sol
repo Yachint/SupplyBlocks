@@ -5,6 +5,7 @@ contract SupplyBlocks {
     address[] public deployedAccounts;
     mapping(address => address) contractDetails;
     address public PaymentsBankAddress;
+    address recentJoin;
     
     constructor() public{
         PaymentsBankAddress = new PaymentsBank();
@@ -13,15 +14,20 @@ contract SupplyBlocks {
     function createAccount(string _orgName, string _description, string ipfs, string priv) public returns (address) {
         address newAccount = new Warehouse(_orgName,msg.sender,_description, this, ipfs, priv);
         contractDetails[msg.sender] = newAccount;
+        recentJoin = newAccount;
         deployedAccounts.push(newAccount);
         return newAccount;
         
     }
     
     function getContractAddress(address warehouseAdd) public view returns (address){
-        return contractDetails[warehouseAdd];
+        address  c =  contractDetails[warehouseAdd];
+        return c;
     }
     
+    function getRecentJoin() public view returns (address){
+        return recentJoin;
+    }
     
     function deactivateAccount(address myAdd) public {
         contractDetails[myAdd] = 0x0000000000000000000000000000000000000000;
