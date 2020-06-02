@@ -11,7 +11,7 @@ const INITIAL_STATE = {
 
 export default (state = INITIAL_STATE, action) => {
     switch(action.type){
-        case 'START':
+        case 'START_TX':
             return {...state,
                 isStarted: true
             }
@@ -39,11 +39,11 @@ export default (state = INITIAL_STATE, action) => {
             return {...state,
                 isFinished: true
             }
-        case 'ERR':
+        case 'ERR_TX':
             return {...state,
                 isError: true
             }
-        case 'RESET':
+        case 'RESET_TX':
             return{...state,
                 isStarted: false,
                 isScabBroadcast: false,

@@ -135,6 +135,7 @@ export const createNewOrder = (formValues) => {
         const userWarehouse = Warehouse(contractAddress);
         dispatch({ type: 'STARTED_TX'});
 
+        dispatch({ type: 'IPFS'});
         console.log('Starting IPFS UPLOAD..');
         const ipfsHash = await IPFS_Upload(JSON.stringify(formValues));
         console.log('Starting ASYMM ENCRYPT..');
@@ -151,6 +152,7 @@ export const createNewOrder = (formValues) => {
 	        }
         }
 
+        dispatch({ type: 'ORDERING'});
         console.log('Starting SCAB BROADCAST: ORDER...');
         await ScabApi.post('/transaction/store/broadcast',modelPostObject);
         const response = await ScabApi.get('/mine');
@@ -175,6 +177,10 @@ export const createNewOrder = (formValues) => {
         //         ledger: response.data['block']
         //     }
         // })
+
+        dispatch({ type: 'FIN_TX' });
+
+        dispatch({ type: 'RESET_TX' });
         
         dispatch({ type: 'FINISHED_TX'});
     }

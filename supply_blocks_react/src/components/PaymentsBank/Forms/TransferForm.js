@@ -105,6 +105,10 @@ const validateForm = (formValues) => {
         }
     }
 
+    // if( parseFloat(formValues.amount) > parseFloat(this.props.balance)){
+    //     errors.amount = 'You do not have sufficient balance!';
+    // }
+
     if(!formValues.seller){
         errors.seller = 'You must enter a seller Address';
     }else{

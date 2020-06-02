@@ -19,9 +19,10 @@ export const switchAllFalse = () =>{
 }
 
 
-export const transferOther = (formValues) => {
+export const transferOther = (formValues, control) => {
     return async (dispatch, getState) => {
         dispatch({ type: 'START_TRANSACTION'});
+        dispatch({ type: 'START_TX'});
 
         const { userAddress } = getState().auth;
         const { contractAddress, AdditionalInfo } = getState().contract;
@@ -36,6 +37,8 @@ export const transferOther = (formValues) => {
             from: userAddress
         });
         console.log('got secret');
+        
+        dispatch({ type: 'BROAD' });
 
         const newHistory = {
             timestamp: new Date().toGMTString(),
@@ -68,6 +71,7 @@ export const transferOther = (formValues) => {
 
         // console.log(contractAddress,' ',formValues.seller,' ',web3.utils.toWei(formValues.amount, 'ether'),' ',secret);
         console.log('tx Starting');
+        dispatch({ type: 'TRANSACT' });
         const Bank = PaymentsBank(bankAddress);
         await Bank.methods.initiateTransaction(
             contractAddress, 
@@ -79,7 +83,7 @@ export const transferOther = (formValues) => {
         console.log('tx Complete');
         
 
-
+        dispatch({ type: 'RECIEPT' });
         console.log('got secret, posting to scab');
         const responseSCAB = await exportToSCAB(formValues.seller, formValues.amount, contractAddress);
         console.log(responseSCAB);
@@ -95,6 +99,13 @@ export const transferOther = (formValues) => {
             }
         });
 
+        if(control === 'no'){
+            dispatch({ type: 'FIN_TX' });
+
+            dispatch({ type: 'RESET_TX' });
+        }
+        
+
         dispatch({ type: 'COMPLETE_TRANSACTION'});
 
     }
@@ -103,6 +114,9 @@ export const transferOther = (formValues) => {
 export const transferSelf = (formValues) => {
     return async (dispatch, getState) => {
         dispatch({ type: 'START_TRANSACTION'});
+
+        dispatch({ type: 'START_TX'});
+
         const { userAddress } = getState().auth;
         const { contractAddress, AdditionalInfo } = getState().contract;
         const { stats, balance } = getState().wallet; 
@@ -118,6 +132,9 @@ export const transferSelf = (formValues) => {
             amount: formValues.amount,
             action: 'get'
         }
+
+        dispatch({ type: 'BROAD' });
+        
         console.log('New History :',newHistory);
         const userWarehouse = Warehouse(contractAddress);
         const obj = await giveUploadableObject(
@@ -144,12 +161,14 @@ export const transferSelf = (formValues) => {
         // const hash = await IPFS_Upload(obj);
         console.log('Scab done ');
 
+        dispatch({ type: 'TRANSACT' });
         console.log('tx Starting');
         await Bank.methods.transferFunds(contractAddress).send({
             value: web3.utils.toWei(formValues.amount, 'ether'),
             from: userAddress
         });
         console.log('tx Complete');
+        dispatch({ type: 'RECIEPT' });
 
         dispatch({
             type: 'UPDATE_BALANCE',
@@ -161,7 +180,8 @@ export const transferSelf = (formValues) => {
                 }
             }
         });
-
+        dispatch({ type: 'FIN_TX' });
+        dispatch({ type: 'RESET_TX' });
         dispatch({ type: 'COMPLETE_TRANSACTION'});
 
     }

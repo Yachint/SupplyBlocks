@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { PageHeader, Spin, Divider, Button, Result } from 'antd';
+import { PageHeader, Spin, Divider, Button, Result, notification } from 'antd';
 import history from '../../history';
 import BankSideMenu from './Fixed/BankSideMenu';
 import TransferForm from './Forms/TransferForm';
@@ -7,15 +7,17 @@ import SelfTransferForm from './Forms/SelfTransferForm';
 import { connect } from 'react-redux';
 import { transferOther, transferSelf, fetchUpdatesSCAB, switchAllFalse } from '../../actions/walletActions';
 import TransactionHistory from './TransactionHistory';
+import TransferSteps from './Fixed/TransferSteps';
 
 const BankMain = (props) => {
 
     const [selectedView, setView] = useState('contract');
     const [isOperating, setOperating] = useState(false);
-    const { isStarted, isCompleted, stats } = props.wallet;
+    const { isStarted, isCompleted, stats, balance } = props.wallet;
     const { bankHistory } = stats;
 
     useEffect(() => {
+        // console.log(balance);
         // console.log('isStarted :',isStarted);
         // console.log('isCompleted :',isCompleted);
         if( isStarted === false && isCompleted === true){
@@ -42,9 +44,25 @@ const BankMain = (props) => {
 
     const transferFundsSubmit = (formValues) => {
         console.log(formValues);
-        props.transferOther(formValues);
-        setOperating(true);
+        if(parseFloat(formValues.amount) > parseFloat(balance)){
+            openNotification();
+        } else {
+            props.transferOther(formValues, 'no');
+            setOperating(true);
+        }
+        
     }
+
+    const openNotification = () => {
+        notification.open({
+          message: 'Insufficient Balance',
+          description:
+            'Please check your Balance in Dashboard before proceeding with the transaction',
+          onClick: () => {
+            console.log('Notification Clicked!');
+          },
+        });
+    };
 
     const selfFundsSubmit = (formValues) => {
         console.log(formValues);
@@ -132,6 +150,7 @@ const BankMain = (props) => {
 
     return(
         <div className="space-align-container">
+            <TransferSteps />
             <div className="space-align-block">
                 <PageHeader
                 className="site-PaymentsBank"

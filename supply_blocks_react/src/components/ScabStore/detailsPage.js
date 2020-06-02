@@ -111,6 +111,7 @@ class DetailsPage extends React.Component {
           title="Payments Bank"
           visible={this.state.visible}
           onCancel={this.handleCancel}
+          width={'1060px'}
           footer={[
             <Button key="back" onClick={this.handleCancel}>
               Back

@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Spin, Divider, Button, Result } from 'antd';
+import { Spin, Divider, Button, Result, notification } from 'antd';
 import { connect } from 'react-redux';
 import { transferOther, switchAllFalse } from '../../../actions/walletActions';
 import { createNewOrder, resetStat } from '../../../actions/orderActions';
 import TransferForm from '../../PaymentsBank/Forms/TransferForm';
+import PayForOrderSteps from './PayForOrderSteps';
 
 const CreateOrder = (props) => {
 
     const { item, wallet, resetStat, orderStore, switchAllFalse, createNewOrder} = props;
     const { isDone } = orderStore;
-    const { isCompleted } = wallet;
+    const { isCompleted, balance } = wallet;
 
     useEffect(() => {
         if(isCompleted && !isDone){
@@ -31,12 +32,29 @@ const CreateOrder = (props) => {
         switchAllFalse()
         resetStat();
         console.log(formValues);
-        props.transferOther(formValues);
-        setOperating(true);
+        if(parseFloat(formValues.amount) > parseFloat(balance)){
+            openNotification();
+        }else {
+            props.transferOther(formValues, 'yes');
+            setOperating(true);
+        }
+        
     }
+
+    const openNotification = () => {
+        notification.open({
+          message: 'Insufficient Balance',
+          description:
+            'Please check your Balance in Dashboard before proceeding with the transaction',
+          onClick: () => {
+            console.log('Notification Clicked!');
+          },
+        });
+    };
 
     return(
         <div>
+            <PayForOrderSteps />
             <Spin 
             tip="Transfer in progress, please be patient..." 
             spinning={isOperating}
@@ -54,10 +72,12 @@ const CreateOrder = (props) => {
               </Button>
               ]}
               /> : <React.Fragment>
+                    
                     <h2>Pay for Order using Ethereum: </h2>
                     
                     <Divider />
                     <TransferForm onSubmit={transferFundsSubmit} initialValues={initialValues}/>
+
             </React.Fragment>}
                 
             </Spin>
