@@ -7,6 +7,7 @@ import stepsReducer from './stepsReducer';
 import transactionReducer from './transactionReducer';
 import storeReducer from './storeReducer';
 import ordersReducer from './ordersReducer';
+import transferSteps from './transferSteps';
 
 export default combineReducers({
     form: formReducer,
@@ -16,5 +17,6 @@ export default combineReducers({
     steps: stepsReducer,
     wallet: transactionReducer,
     store: storeReducer,
-    orderStore: ordersReducer
+    orderStore: ordersReducer,
+    transferSteps: transferSteps
 });
